@@ -72,7 +72,7 @@ nav .links a:hover{color:var(--yellow);}
     radial-gradient(ellipse at 20% 0%, rgba(139,111,242,0.28), transparent 55%),
     radial-gradient(ellipse at 80% 10%, rgba(232,72,59,0.15), transparent 45%),
     linear-gradient(180deg,#0D0A24 0%, #12103A 60%, #1A1550 100%);
-  min-height:88vh;
+  min-height:68vh;
   display:flex;flex-direction:column;
   overflow:hidden;
 }
@@ -89,7 +89,7 @@ nav .links a:hover{color:var(--yellow);}
 }
 .hero-content{
   position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;padding:60px 24px 40px;
+  text-align:center;padding:32px 24px 32px;
 }
 .ropes{position:relative;width:100%;max-width:520px;height:34px;margin:0 auto;}
 .ropes svg{width:100%;height:100%;display:block;}
@@ -128,7 +128,7 @@ nav .links a:hover{color:var(--yellow);}
   border:3px solid var(--yellow);
   box-shadow:0 0 0 6px rgba(244,196,48,0.15), 0 0 40px rgba(139,111,242,0.5);
   display:flex;align-items:center;justify-content:center;
-  margin:34px auto 18px;
+  margin:20px auto 14px;
   overflow:hidden;
 }
 .badge-logo img{width:78%;height:78%;object-fit:contain;}
@@ -139,7 +139,14 @@ nav .links a:hover{color:var(--yellow);}
   margin-top:22px;font-family:'Fredoka';font-weight:600;letter-spacing:0.3px;
   color:var(--yellow);font-size:1.1rem;
 }
-.hero-ctas{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap;justify-content:center;}
+.hero-announce{
+  margin-top:18px;max-width:520px;
+  background:rgba(139,111,242,0.14);border:1px solid rgba(139,111,242,0.4);
+  border-radius:12px;padding:12px 18px;
+  font-size:0.88rem;color:var(--cream-dim);line-height:1.5;
+}
+.hero-announce strong{color:var(--yellow);}
+.hero-ctas{display:flex;gap:14px;margin-top:22px;flex-wrap:wrap;justify-content:center;}
 .btn{
   font-family:'Fredoka';font-weight:600;font-size:0.98rem;
   padding:13px 26px;border-radius:999px;text-decoration:none;
@@ -151,7 +158,7 @@ nav .links a:hover{color:var(--yellow);}
 .btn-ghost{background:transparent;color:var(--cream);border:2px solid rgba(247,241,225,0.35);}
 
 .countdown{
-  display:flex;gap:14px;margin-top:38px;flex-wrap:wrap;justify-content:center;
+  display:flex;gap:14px;margin-top:28px;flex-wrap:wrap;justify-content:center;
 }
 .countdown div{
   background:rgba(247,241,225,0.06);
@@ -214,7 +221,7 @@ nav .links a:hover{color:var(--yellow);}
   background:repeating-linear-gradient(115deg, var(--red) 0 16px, var(--cream) 16px 32px);
 }
 .stand-body{padding:22px 20px 24px;}
-.stand-icon{font-size:2rem;display:block;margin-bottom:10px;}
+.stand-icon{font-size:2rem;display:inline-block;position:relative;margin-bottom:10px;}
 .stand-body h3{font-size:1.15rem;color:var(--cream);margin-bottom:6px;}
 .stand-tag{
   display:inline-block;margin-top:10px;font-size:0.74rem;
@@ -245,7 +252,8 @@ nav .links a:hover{color:var(--yellow);}
 }
 .tl-time{font-family:'Fredoka';font-weight:600;color:var(--yellow);font-size:0.95rem;}
 .tl-name{font-size:1.15rem;margin-top:2px;color:var(--cream);display:flex;align-items:center;gap:9px;}
-.tl-icon{font-size:1.15rem;line-height:1;}
+.tl-icon{font-size:1.15rem;line-height:1;display:inline-block;position:relative;}
+.icon-sup{position:absolute;top:-2px;right:-10px;font-size:0.5em;line-height:1;}
 .tl-duration{font-size:0.8rem;color:var(--cream-dim);margin-top:2px;}
 
 /* ---------- CLASSEMENT ---------- */
@@ -397,6 +405,7 @@ footer .brand{justify-content:center;margin-bottom:10px;}
     </div>
     <p class="hero-sub">Deux soirées, 7 stands, un classement final, un gagnant : dominer la galaxie GX. Rejoins la kermesse de la rentrée et affronte toute la team, jeu par jeu.</p>
     <div class="hero-dates">Vendredi 18 &amp; Samedi 19 Septembre 2026</div>
+    <div class="hero-announce">🚀 <strong>Grande annonce</strong> à l'occasion de la kermesse : un événement inédit chez GX arrive, à places limitées — les participant·e·s de cette kermesse seront prioritaires !</div>
     <div class="hero-ctas">
       <a href="#inscription" class="btn btn-primary">Je m'inscris</a>
       <a href="#programme" class="btn btn-ghost">Voir le programme</a>
@@ -579,7 +588,7 @@ const games = [
   {name:'GeoGuessr', icon:'🌍'},
   {name:'Pummel Party', icon:'🥊'},
   {name:'Worms WMD', icon:'💣'},
-  {name:'Mecha Chameleon', icon:'🖌️🦎🖌️'},
+  {name:'Mecha Chameleon', icon:'🦎<span class="icon-sup">🖌️</span>'},
   {name:'SpeedRunners 2', icon:'🏃'},
   {name:'WikiRace', icon:'📚'}
 ];
