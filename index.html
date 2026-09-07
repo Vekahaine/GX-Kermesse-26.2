@@ -266,8 +266,11 @@ nav .links a:hover{color:var(--yellow);}
 .lock{font-size:1.4rem;display:block;margin-bottom:6px;opacity:.7;}
 .rank-status{font-size:0.78rem;color:var(--cream-dim);}
 
-.participants-block{margin-top:36px;}
-.participants-title{font-family:'Fredoka';font-weight:600;font-size:1rem;color:var(--cream);margin-bottom:14px;}
+.participants-block{
+  margin-top:36px;background:var(--night-3);border-radius:16px;padding:26px 28px;
+  border:1px solid rgba(247,241,225,0.08);
+}
+.participants-title{font-family:'Fredoka';font-weight:600;font-size:1.05rem;color:var(--cream);margin-bottom:16px;}
 .participants-list{display:flex;flex-wrap:wrap;gap:10px;}
 .participant-chip{
   display:flex;align-items:center;gap:8px;background:var(--night-3);
@@ -275,6 +278,24 @@ nav .links a:hover{color:var(--yellow);}
   font-family:'Fredoka';font-weight:600;font-size:0.9rem;color:var(--cream);
 }
 .participant-chip .pts{color:var(--yellow);font-size:0.78rem;font-weight:600;}
+
+/* ---------- LIVE ---------- */
+#live{background:var(--night);}
+.live-badge{
+  display:inline-flex;align-items:center;gap:8px;font-family:'Fredoka';font-weight:600;
+  font-size:0.78rem;color:#fff;background:var(--red);padding:5px 14px 5px 10px;border-radius:999px;
+  margin-bottom:14px;
+}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#fff;animation:live-pulse 1.4s ease-in-out infinite;}
+@keyframes live-pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+.live-embed{
+  position:relative;width:100%;padding-top:56.25%;margin-top:36px;
+  border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.45);
+  border:2px solid rgba(232,72,59,0.4);background:#000;
+}
+.live-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+.live-link{display:inline-block;margin-top:16px;color:var(--yellow);font-family:'Fredoka';font-weight:600;font-size:0.9rem;text-decoration:none;}
+.live-link:hover{text-decoration:underline;}
 
 /* ---------- INSCRIPTION ---------- */
 #inscription{background:var(--night);}
@@ -352,7 +373,7 @@ footer .brand{justify-content:center;margin-bottom:10px;}
       <a href="#jeux">Les jeux</a>
       <a href="#programme">Programme</a>
       <a href="#classement">Classement</a>
-      <a href="#inscription">Inscription</a>
+      <a href="#live">Live</a>
     </div>
     <a class="nav-cta" href="#inscription">Je m'inscris</a>
   </div>
@@ -446,6 +467,18 @@ footer .brand{justify-content:center;margin-bottom:10px;}
       <h3 class="participants-title">Déjà inscrit·e·s</h3>
       <div class="participants-list" id="participants-list"></div>
     </div>
+  </div>
+</section>
+
+<section id="live">
+  <div class="wrap">
+    <span class="live-badge"><span class="live-dot"></span>En direct</span>
+    <h2 class="section-title">Suis la kermesse en live</h2>
+    <p class="section-desc">Toute l'action sera diffusée en direct sur la chaîne Kick de GALACTIX ESPORT pendant les deux soirées.</p>
+    <div class="live-embed">
+      <iframe src="https://player.kick.com/vekahaine" allow="autoplay; fullscreen" allowfullscreen title="Live GALACTIX ESPORT sur Kick"></iframe>
+    </div>
+    <a class="live-link" href="https://kick.com/vekahaine" target="_blank" rel="noopener">Ouvrir la chaîne sur kick.com/vekahaine ↗</a>
   </div>
 </section>
 
