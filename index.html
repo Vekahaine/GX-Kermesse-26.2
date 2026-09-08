@@ -633,8 +633,13 @@ body.page-account .home-section{display:none;}
     </div>
 
     <div class="account-card hidden" id="account-setup-card">
-      <h3>Finalisation de ton compte…</h3>
-      <p class="section-desc small">Un instant, ton profil est en cours de création…</p>
+      <h3>Finalise ton compte</h3>
+      <p class="section-desc small">La création automatique de ton profil n'a pas abouti. Confirme ton pseudo pour réessayer.</p>
+      <div class="account-login">
+        <input type="text" id="account-setup-pseudo" placeholder="Ton blaze pour la kermesse" maxlength="40">
+        <button class="btn btn-primary" id="account-setup-btn">Créer mon profil</button>
+      </div>
+      <div class="account-msg" id="account-setup-msg"></div>
     </div>
 
     <div class="account-card hidden" id="account-profile-card">
@@ -921,6 +926,9 @@ const accountSignupPseudoInput = document.getElementById('account-signup-pseudo'
 const accountSignupBtn = document.getElementById('account-signup-btn');
 const accountSignupMsg = document.getElementById('account-signup-msg');
 const accountSetupCard = document.getElementById('account-setup-card');
+const accountSetupPseudoInput = document.getElementById('account-setup-pseudo');
+const accountSetupBtn = document.getElementById('account-setup-btn');
+const accountSetupMsg = document.getElementById('account-setup-msg');
 const accountProfileCard = document.getElementById('account-profile-card');
 const participateStatusCard = document.getElementById('participate-status-card');
 const participateStatusContent = document.getElementById('participate-status-content');
@@ -1031,6 +1039,37 @@ accountSignupBtn.addEventListener('click', async () => {
     accountSignupMsg.textContent = authErrorMessage(err, "Impossible de créer le compte.");
   }finally{
     accountSignupBtn.disabled = false;
+  }
+});
+
+accountSetupBtn.addEventListener('click', async () => {
+  const pseudo = accountSetupPseudoInput.value.trim();
+  accountSetupMsg.className = 'account-msg';
+  accountSetupMsg.textContent = '';
+  if(!pseudo){
+    accountSetupMsg.className = 'account-msg err';
+    accountSetupMsg.textContent = "Merci d'indiquer ton pseudo.";
+    return;
+  }
+  if(!auth.currentUser || !auth.currentUser.email){
+    accountSetupMsg.className = 'account-msg err';
+    accountSetupMsg.textContent = 'Ta session a expiré, reconnecte-toi.';
+    return;
+  }
+  accountSetupBtn.disabled = true;
+  try{
+    const email = auth.currentUser.email.toLowerCase();
+    await setDoc(doc(db, 'users', sanitizeEmail(email)), {
+      email,
+      pseudo,
+      avatar: null,
+      createdAt: serverTimestamp()
+    });
+  }catch(err){
+    accountSetupMsg.className = 'account-msg err';
+    accountSetupMsg.textContent = authErrorMessage(err, "Impossible de créer ton profil pour le moment.");
+  }finally{
+    accountSetupBtn.disabled = false;
   }
 });
 
