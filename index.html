@@ -610,23 +610,31 @@ body.page-account .home-section{display:none;}
 
     <div class="account-card" id="account-login-card">
       <h3>Se connecter</h3>
-      <p class="section-desc small">Indique ton adresse mail : un lien de connexion sans mot de passe te sera envoyé. Si c'est ta première visite, ton compte sera créé automatiquement à la suite.</p>
+      <p class="section-desc small">Déjà un compte ? Connecte-toi avec ton email et ton mot de passe.</p>
       <div class="account-login">
         <input type="email" id="account-email" placeholder="toi@exemple.com">
-        <button class="btn btn-primary" id="account-login-btn">Recevoir mon lien</button>
+        <input type="password" id="account-password" placeholder="Mot de passe">
+        <button class="btn btn-primary" id="account-login-btn">Se connecter</button>
       </div>
       <div class="account-msg" id="account-login-msg"></div>
-      <div class="account-hint">⚠️ Le mail arrive parfois dans les <strong>spams / courriers indésirables</strong> — vérifie ce dossier s'il n'apparaît pas après quelques minutes. Clique sur le lien depuis cet appareil pour te connecter.</div>
+      <div class="account-hint">Mot de passe oublié ? <a href="#" id="account-forgot-link">Recevoir un lien de réinitialisation</a> (vérifie aussi tes spams).</div>
+    </div>
+
+    <div class="account-card" id="account-signup-card">
+      <h3>Pas encore de compte ?</h3>
+      <p class="section-desc small">Choisis un email, un mot de passe (6 caractères minimum) et ton pseudo pour la kermesse.</p>
+      <div class="account-login">
+        <input type="email" id="account-signup-email" placeholder="toi@exemple.com">
+        <input type="password" id="account-signup-password" placeholder="Mot de passe (6 caractères min.)">
+        <input type="text" id="account-signup-pseudo" placeholder="Ton blaze pour la kermesse" maxlength="40">
+        <button class="btn btn-primary" id="account-signup-btn">Créer mon compte</button>
+      </div>
+      <div class="account-msg" id="account-signup-msg"></div>
     </div>
 
     <div class="account-card hidden" id="account-setup-card">
-      <h3>Choisis ton pseudo</h3>
-      <p class="section-desc small">Dernière étape avant de pouvoir participer : choisis le pseudo qui t'identifiera sur le site.</p>
-      <div class="account-login">
-        <input type="text" id="account-setup-pseudo" placeholder="Ton blaze pour la kermesse" maxlength="40">
-        <button class="btn btn-primary" id="account-setup-btn">Créer mon compte</button>
-      </div>
-      <div class="account-msg" id="account-setup-msg"></div>
+      <h3>Finalisation de ton compte…</h3>
+      <p class="section-desc small">Un instant, ton profil est en cours de création…</p>
     </div>
 
     <div class="account-card hidden" id="account-profile-card">
@@ -768,7 +776,7 @@ document.querySelectorAll('.day-tab').forEach(tab=>{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
-  getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink,
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail,
   onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
@@ -901,13 +909,18 @@ showPage(window.location.hash === '#compte' ? 'account' : 'home');
 
 /* ---------- Mon compte : éléments DOM ---------- */
 const accountEmailInput = document.getElementById('account-email');
+const accountPasswordInput = document.getElementById('account-password');
 const accountLoginBtn = document.getElementById('account-login-btn');
 const accountLoginMsg = document.getElementById('account-login-msg');
 const accountLoginCard = document.getElementById('account-login-card');
+const accountForgotLink = document.getElementById('account-forgot-link');
+const accountSignupCard = document.getElementById('account-signup-card');
+const accountSignupEmailInput = document.getElementById('account-signup-email');
+const accountSignupPasswordInput = document.getElementById('account-signup-password');
+const accountSignupPseudoInput = document.getElementById('account-signup-pseudo');
+const accountSignupBtn = document.getElementById('account-signup-btn');
+const accountSignupMsg = document.getElementById('account-signup-msg');
 const accountSetupCard = document.getElementById('account-setup-card');
-const accountSetupPseudoInput = document.getElementById('account-setup-pseudo');
-const accountSetupBtn = document.getElementById('account-setup-btn');
-const accountSetupMsg = document.getElementById('account-setup-msg');
 const accountProfileCard = document.getElementById('account-profile-card');
 const participateStatusCard = document.getElementById('participate-status-card');
 const participateStatusContent = document.getElementById('participate-status-content');
@@ -923,15 +936,23 @@ const accountLogoutBtn = document.getElementById('account-logout-btn');
 const adminList = document.getElementById('admin-list');
 const navAccountBadge = document.getElementById('nav-account-badge');
 
-const ACTION_CODE_SETTINGS = {
-  url: window.location.href.split('#')[0].split('?')[0] + '#compte',
-  handleCodeInApp: true
-};
-
 function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+function authErrorMessage(err, context){
+  const code = err && err.code ? err.code : '';
+  if(code === 'auth/email-already-in-use') return "Un compte existe déjà avec cet email — connecte-toi plutôt avec ton mot de passe ci-dessus.";
+  if(code === 'auth/weak-password') return "Mot de passe trop court (6 caractères minimum).";
+  if(code === 'auth/invalid-email') return "Adresse email invalide.";
+  if(code === 'auth/missing-password') return "Merci d'indiquer un mot de passe.";
+  if(code === 'auth/invalid-credential' || code === 'auth/wrong-password') return "Email ou mot de passe incorrect.";
+  if(code === 'auth/user-not-found') return "Aucun compte avec cet email — crée-en un juste en dessous.";
+  if(code === 'auth/too-many-requests') return "Trop de tentatives, réessaie dans quelques minutes.";
+  return (context || "Une erreur est survenue.") + (err && err.message ? ' (' + err.message + ')' : '');
+}
 
 accountLoginBtn.addEventListener('click', async () => {
   const email = accountEmailInput.value.trim().toLowerCase();
+  const password = accountPasswordInput.value;
   accountLoginMsg.className = 'account-msg';
   accountLoginMsg.textContent = '';
   if(!isValidEmail(email)){
@@ -939,40 +960,79 @@ accountLoginBtn.addEventListener('click', async () => {
     accountLoginMsg.textContent = "Merci d'indiquer une adresse mail valide.";
     return;
   }
+  if(!password){
+    accountLoginMsg.className = 'account-msg err';
+    accountLoginMsg.textContent = "Merci d'indiquer ton mot de passe.";
+    return;
+  }
   accountLoginBtn.disabled = true;
   try{
-    await sendSignInLinkToEmail(auth, email, ACTION_CODE_SETTINGS);
-    window.localStorage.setItem('gxEmailForSignIn', email);
-    accountLoginMsg.className = 'account-msg ok';
-    accountLoginMsg.textContent = "Lien envoyé ! Vérifie ta boîte mail — et pense aussi à regarder dans tes spams / courriers indésirables si tu ne le vois pas — puis clique sur le lien depuis cet appareil.";
+    await signInWithEmailAndPassword(auth, email, password);
   }catch(err){
     accountLoginMsg.className = 'account-msg err';
-    accountLoginMsg.textContent = "Impossible d'envoyer le lien pour le moment. Réessaie dans un instant.";
+    accountLoginMsg.textContent = authErrorMessage(err, "Connexion impossible.");
   }finally{
     accountLoginBtn.disabled = false;
   }
 });
 
-/* Complétion du lien magique au retour depuis l'e-mail */
-(async () => {
-  if(isSignInWithEmailLink(auth, window.location.href)){
-    let email = window.localStorage.getItem('gxEmailForSignIn');
-    if(!email){
-      email = window.prompt('Confirme ton adresse mail pour finaliser la connexion :');
-    }
-    if(email){
-      try{
-        await signInWithEmailLink(auth, email, window.location.href);
-        window.localStorage.removeItem('gxEmailForSignIn');
-        history.replaceState(null, '', window.location.pathname + '#compte');
-        goToAccount();
-      }catch(err){
-        accountLoginMsg.className = 'account-msg err';
-        accountLoginMsg.textContent = "Ce lien de connexion n'est plus valide, redemande-en un nouveau ci-dessous.";
-      }
-    }
+accountForgotLink.addEventListener('click', async (e) => {
+  e.preventDefault();
+  const email = accountEmailInput.value.trim().toLowerCase();
+  accountLoginMsg.className = 'account-msg';
+  accountLoginMsg.textContent = '';
+  if(!isValidEmail(email)){
+    accountLoginMsg.className = 'account-msg err';
+    accountLoginMsg.textContent = "Indique ton adresse mail ci-dessus, puis clique à nouveau sur ce lien.";
+    return;
   }
-})();
+  try{
+    await sendPasswordResetEmail(auth, email);
+    accountLoginMsg.className = 'account-msg ok';
+    accountLoginMsg.textContent = "Email de réinitialisation envoyé — pense à vérifier tes spams si tu ne le vois pas.";
+  }catch(err){
+    accountLoginMsg.className = 'account-msg err';
+    accountLoginMsg.textContent = authErrorMessage(err, "Impossible d'envoyer l'email de réinitialisation.");
+  }
+});
+
+accountSignupBtn.addEventListener('click', async () => {
+  const email = accountSignupEmailInput.value.trim().toLowerCase();
+  const password = accountSignupPasswordInput.value;
+  const pseudo = accountSignupPseudoInput.value.trim();
+  accountSignupMsg.className = 'account-msg';
+  accountSignupMsg.textContent = '';
+  if(!isValidEmail(email)){
+    accountSignupMsg.className = 'account-msg err';
+    accountSignupMsg.textContent = "Merci d'indiquer une adresse mail valide.";
+    return;
+  }
+  if(!password || password.length < 6){
+    accountSignupMsg.className = 'account-msg err';
+    accountSignupMsg.textContent = "Le mot de passe doit faire au moins 6 caractères.";
+    return;
+  }
+  if(!pseudo){
+    accountSignupMsg.className = 'account-msg err';
+    accountSignupMsg.textContent = "Merci d'indiquer ton pseudo.";
+    return;
+  }
+  accountSignupBtn.disabled = true;
+  try{
+    await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(db, 'users', sanitizeEmail(email)), {
+      email,
+      pseudo,
+      avatar: null,
+      createdAt: serverTimestamp()
+    });
+  }catch(err){
+    accountSignupMsg.className = 'account-msg err';
+    accountSignupMsg.textContent = authErrorMessage(err, "Impossible de créer le compte.");
+  }finally{
+    accountSignupBtn.disabled = false;
+  }
+});
 
 accountLogoutBtn.addEventListener('click', () => signOut(auth));
 
@@ -985,6 +1045,7 @@ let lastKnownUserData = null;
 
 function hideAllAccountCards(){
   accountLoginCard.classList.add('hidden');
+  accountSignupCard.classList.add('hidden');
   accountSetupCard.classList.add('hidden');
   accountProfileCard.classList.add('hidden');
   participateStatusCard.classList.add('hidden');
@@ -1039,38 +1100,6 @@ avatarUpload.addEventListener('change', async () => {
     accountProfileMsg.textContent = "Cette image n'a pas pu être utilisée, essaie-en une autre.";
   }finally{
     avatarUpload.value = '';
-  }
-});
-
-/* ---------- Création du compte (pseudo) ---------- */
-accountSetupBtn.addEventListener('click', async () => {
-  const pseudo = accountSetupPseudoInput.value.trim();
-  accountSetupMsg.className = 'account-msg';
-  accountSetupMsg.textContent = '';
-  if(!pseudo){
-    accountSetupMsg.className = 'account-msg err';
-    accountSetupMsg.textContent = 'Merci d\'indiquer ton pseudo.';
-    return;
-  }
-  if(!auth.currentUser || !auth.currentUser.email){
-    accountSetupMsg.className = 'account-msg err';
-    accountSetupMsg.textContent = 'Ta session a expiré, reconnecte-toi.';
-    return;
-  }
-  accountSetupBtn.disabled = true;
-  try{
-    const email = auth.currentUser.email.toLowerCase();
-    await setDoc(currentUserRef, {
-      email,
-      pseudo,
-      avatar: null,
-      createdAt: serverTimestamp()
-    });
-  }catch(err){
-    accountSetupMsg.className = 'account-msg err';
-    accountSetupMsg.textContent = "Impossible de créer ton compte pour le moment (réessaie dans un instant). Détail technique : " + (err && err.message ? err.message : 'erreur inconnue');
-  }finally{
-    accountSetupBtn.disabled = false;
   }
 });
 
@@ -1170,6 +1199,7 @@ onAuthStateChanged(auth, (user) => {
   if(!user || !user.email){
     hideAllAccountCards();
     accountLoginCard.classList.remove('hidden');
+    accountSignupCard.classList.remove('hidden');
     adminPanel.classList.add('hidden');
     navAccountBadge.hidden = true;
     currentUserRef = null;
