@@ -273,6 +273,10 @@ nav .links a:hover{color:var(--yellow);}
 .rank-card h3{font-size:1rem;color:var(--cream);margin-bottom:8px;}
 .lock{font-size:1.4rem;display:block;margin-bottom:6px;opacity:.7;}
 .rank-status{font-size:0.78rem;color:var(--cream-dim);}
+.rank-list{list-style:none;margin:0;padding:0;text-align:left;}
+.rank-list li{display:flex;justify-content:space-between;gap:10px;padding:4px 0;font-size:0.85rem;color:var(--cream);border-top:1px solid rgba(247,241,225,0.08);}
+.rank-list li:first-child{border-top:none;}
+.rank-list .pts{color:var(--yellow);font-weight:600;flex:none;}
 
 .participants-block{
   margin-top:36px;background:var(--night-3);border-radius:16px;padding:26px 28px;
@@ -440,6 +444,16 @@ footer .brand{justify-content:center;margin-bottom:10px;}
 .admin-approve{background:var(--teal);color:#0c2b23;}
 .admin-refuse{background:rgba(232,72,59,0.7);color:#fff;}
 .admin-empty{font-size:0.85rem;color:var(--cream-dim);}
+
+.admin-results{margin-top:22px;padding-top:18px;border-top:1px solid rgba(247,241,225,0.12);}
+.admin-results select{
+  width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(247,241,225,0.25);
+  background:var(--night-2);color:var(--cream);font-family:'Space Grotesk';font-size:0.88rem;margin-bottom:10px;
+}
+.admin-results-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.admin-results-row .admin-results-pos{flex:none;width:88px;font-weight:600;color:var(--yellow);font-size:0.8rem;}
+.admin-results-row select{margin-bottom:0;flex:1;}
+#admin-results-submit{margin-top:6px;}
 
 .hidden{display:none !important;}
 
@@ -609,11 +623,11 @@ body.page-account .home-section{display:none;}
         </div>
 
         <div class="timeline" id="timeline-samedi">
-          <div class="tl-item"><div class="tl-time">22h00 – 22h30</div><div class="tl-name">Quizz — partie 2</div><div class="tl-duration">30 minutes</div></div>
+          <div class="tl-item"><div class="tl-time">22h00 – 22h30</div><div class="tl-name">Quizz</div><div class="tl-duration">30 minutes</div></div>
           <div class="tl-item"><div class="tl-time">22h30 – 22h45</div><div class="tl-name">WikiRace</div><div class="tl-duration">15 minutes</div></div>
           <div class="tl-item"><div class="tl-time">22h45 – 23h15</div><div class="tl-name">Worms WMD</div><div class="tl-duration">30 minutes</div></div>
           <div class="tl-item"><div class="tl-time">23h15 – 00h00</div><div class="tl-name">Pummel Party</div><div class="tl-duration">45 minutes</div></div>
-          <div class="tl-item"><div class="tl-time">00h00 – 00h45</div><div class="tl-name">SpeedRunners 2 — partie 2</div><div class="tl-duration">45 minutes</div></div>
+          <div class="tl-item"><div class="tl-time">00h00 – 00h45</div><div class="tl-name">SpeedRunners 2</div><div class="tl-duration">45 minutes</div></div>
         </div>
       </div>
 
@@ -632,7 +646,7 @@ body.page-account .home-section{display:none;}
   <div class="wrap">
     <span class="eyebrow-tag">Classements</span>
     <h2 class="section-title">Qui décrochera la couronne galactique ?</h2>
-    <p class="section-desc">Un classement sera établi pour chaque tournoi, et combiné en un classement général à l'issue des deux soirées. Le barème de points sera communiqué prochainement.</p>
+    <p class="section-desc">Un classement est établi pour chaque tournoi, combiné en un classement général à l'issue des deux soirées. Les résultats et les points se mettent à jour en direct au fil de la kermesse.</p>
     <div class="rank-grid" id="rank-grid"></div>
 
     <div class="participants-block">
@@ -721,6 +735,15 @@ body.page-account .home-section{display:none;}
       <h3>🛡️ Demandes de participation à valider</h3>
       <div class="account-hint">Visible uniquement par toi. Approuve pour faire apparaître le pseudo dans le classement.</div>
       <div id="admin-list"></div>
+
+      <div class="admin-results" id="admin-results">
+        <h3>🏅 Résultats des étapes</h3>
+        <div class="account-hint">Choisis un jeu, puis indique le classement complet (tous les participants concernés). Les points se calculent automatiquement et le classement général se met à jour en direct.</div>
+        <select class="admin-results-select" id="admin-results-game"></select>
+        <div id="admin-results-form"></div>
+        <button class="btn btn-primary" id="admin-results-submit">Enregistrer ce classement</button>
+        <div class="account-msg" id="admin-results-msg"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -781,14 +804,15 @@ setInterval(tickCountdown, 1000);
 
 /* ---------- Stands (jeux) ---------- */
 const games = [
-  {name:'Quizz', icon:'🧠'},
-  {name:'GeoGuessr', icon:'🌍'},
-  {name:'Pummel Party', icon:'🥊'},
-  {name:'Worms WMD', icon:'💣'},
-  {name:'Mecha Chameleon', icon:'🦎<span class="icon-sup">🖌️</span>'},
-  {name:'SpeedRunners 2', icon:'🏃'},
-  {name:'WikiRace', icon:'📚'}
+  {name:'Quizz', slug:'quizz', icon:'🧠'},
+  {name:'GeoGuessr', slug:'geoguessr', icon:'🌍'},
+  {name:'Pummel Party', slug:'pummel-party', icon:'🥊'},
+  {name:'Worms WMD', slug:'worms-wmd', icon:'💣'},
+  {name:'Mecha Chameleon', slug:'mecha-chameleon', icon:'🦎<span class="icon-sup">🖌️</span>'},
+  {name:'SpeedRunners 2', slug:'speedrunners-2', icon:'🏃'},
+  {name:'WikiRace', slug:'wikirace', icon:'📚'}
 ];
+window.__gxGames = games;
 const standsGrid = document.getElementById('stands-grid');
 games.forEach(g=>{
   const div = document.createElement('div');
@@ -803,11 +827,12 @@ games.forEach(g=>{
 
 /* ---------- Classement skeleton ---------- */
 const rankGrid = document.getElementById('rank-grid');
-rankGrid.innerHTML = `<div class="rank-card general"><span class="lock">🏆</span><h3>Classement général</h3><div class="rank-status">Barème de points à venir</div></div>`;
+rankGrid.innerHTML = `<div class="rank-card general" id="rank-card-general"><span class="lock">🏆</span><h3>Classement général</h3><div class="rank-status" id="rank-general-body">Barème de points à venir</div></div>`;
 games.forEach(g=>{
   const div = document.createElement('div');
   div.className = 'rank-card';
-  div.innerHTML = `<span class="lock">🔒</span><h3>${g.name}</h3><div class="rank-status">Bientôt disponible</div>`;
+  div.id = 'rank-card-' + g.slug;
+  div.innerHTML = `<span class="lock">🔒</span><h3>${g.name}</h3><div class="rank-status" id="rank-body-${g.slug}">Bientôt disponible</div>`;
   rankGrid.appendChild(div);
 });
 
@@ -1364,4 +1389,197 @@ if(participantsListEl){
     });
   });
 }
+
+/* ---------- Résultats des étapes & points (Round 8) ---------- */
+const POINTS_BAREME = {
+  'quizz': [10,5,3],
+  'wikirace': [5],
+  'worms-wmd': [10,5,3],
+  'pummel-party': [10,5,3],
+  'speedrunners-2': [10,5,3]
+};
+const resultGames = (window.__gxGames || []).filter(g => POINTS_BAREME[g.slug]);
+function resultDocId(slug){ return KERMESSE_ID + '_' + slug; }
+
+const adminResultsGameSelect = document.getElementById('admin-results-game');
+const adminResultsForm = document.getElementById('admin-results-form');
+const adminResultsSubmitBtn = document.getElementById('admin-results-submit');
+const adminResultsMsg = document.getElementById('admin-results-msg');
+
+let approvedParticipants = [];
+let currentResultsBySlug = {};
+
+function refreshResultsSelectOptions(){
+  const selects = Array.from(adminResultsForm.querySelectorAll('select'));
+  const chosen = selects.map(s => s.value).filter(Boolean);
+  selects.forEach(sel => {
+    const current = sel.value;
+    sel.innerHTML = '<option value="">— choisir —</option>';
+    approvedParticipants.forEach(p => {
+      if(p.email === current || chosen.indexOf(p.email) === -1){
+        const opt = document.createElement('option');
+        opt.value = p.email;
+        opt.textContent = p.pseudo;
+        sel.appendChild(opt);
+      }
+    });
+    sel.value = current;
+  });
+}
+
+function buildResultsForm(){
+  if(!adminResultsGameSelect) return;
+  const slug = adminResultsGameSelect.value;
+  const bareme = POINTS_BAREME[slug] || [];
+  const positions = Math.max(bareme.length, approvedParticipants.length);
+  const existing = currentResultsBySlug[slug];
+  const existingByPos = {};
+  if(existing && existing.ranking){
+    existing.ranking.forEach(r => { existingByPos[r.position] = r.email; });
+  }
+  adminResultsForm.innerHTML = '';
+  for(let pos = 1; pos <= positions; pos++){
+    const row = document.createElement('div');
+    row.className = 'admin-results-row';
+    const label = document.createElement('span');
+    label.className = 'admin-results-pos';
+    const posLabel = pos === 1 ? '1er' : (pos + 'e');
+    label.textContent = posLabel + (bareme[pos-1] ? ' (' + bareme[pos-1] + ' pts)' : '');
+    const sel = document.createElement('select');
+    sel.dataset.position = String(pos);
+    row.appendChild(label);
+    row.appendChild(sel);
+    adminResultsForm.appendChild(row);
+  }
+  refreshResultsSelectOptions();
+  if(existing){
+    adminResultsForm.querySelectorAll('select').forEach(sel => {
+      const pos = Number(sel.dataset.position);
+      if(existingByPos[pos]) sel.value = existingByPos[pos];
+    });
+  }
+}
+
+async function recomputeAllPoints(){
+  const totals = {};
+  for(const g of resultGames){
+    try{
+      const snap = await getDoc(doc(db, 'results', resultDocId(g.slug)));
+      if(snap.exists()){
+        const data = snap.data();
+        (data.ranking || []).forEach(r => {
+          totals[r.email] = (totals[r.email] || 0) + (r.points || 0);
+        });
+      }
+    }catch(err){ /* on continue malgré une erreur isolée */ }
+  }
+  await Promise.all(approvedParticipants.map(async p => {
+    const total = totals[p.email] || 0;
+    if(p.points !== total){
+      try{ await updateDoc(doc(db, 'registrations', p.id), { points: total }); }catch(err){ /* ignore */ }
+    }
+  }));
+}
+
+if(adminResultsGameSelect){
+  resultGames.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.slug;
+    opt.textContent = g.name;
+    adminResultsGameSelect.appendChild(opt);
+  });
+  if(resultGames.length){
+    adminResultsGameSelect.value = resultGames[0].slug;
+    buildResultsForm();
+  }
+  adminResultsGameSelect.addEventListener('change', buildResultsForm);
+  adminResultsForm.addEventListener('change', (e) => {
+    if(e.target && e.target.tagName === 'SELECT') refreshResultsSelectOptions();
+  });
+  adminResultsSubmitBtn.addEventListener('click', async () => {
+    const slug = adminResultsGameSelect.value;
+    if(!slug) return;
+    const game = resultGames.find(g => g.slug === slug);
+    const bareme = POINTS_BAREME[slug] || [];
+    const selects = Array.from(adminResultsForm.querySelectorAll('select'));
+    const ranking = [];
+    selects.forEach(sel => {
+      if(!sel.value) return;
+      const pos = Number(sel.dataset.position);
+      const p = approvedParticipants.find(x => x.email === sel.value);
+      if(!p) return;
+      ranking.push({ email: p.email, pseudo: p.pseudo, position: pos, points: bareme[pos-1] || 0 });
+    });
+    if(ranking.length === 0){
+      adminResultsMsg.className = 'account-msg err';
+      adminResultsMsg.textContent = "Renseigne au moins une position avant d'enregistrer.";
+      return;
+    }
+    adminResultsSubmitBtn.disabled = true;
+    adminResultsMsg.className = 'account-msg';
+    adminResultsMsg.textContent = 'Enregistrement…';
+    try{
+      await setDoc(doc(db, 'results', resultDocId(slug)), {
+        kermesseId: KERMESSE_ID,
+        gameSlug: slug,
+        gameName: game ? game.name : slug,
+        ranking,
+        updatedAt: serverTimestamp(),
+        updatedBy: ADMIN_EMAIL
+      });
+      await recomputeAllPoints();
+      adminResultsMsg.className = 'account-msg ok';
+      adminResultsMsg.textContent = 'Classement enregistré, points recalculés !';
+    }catch(err){
+      adminResultsMsg.className = 'account-msg err';
+      adminResultsMsg.textContent = "Impossible d'enregistrer ce classement pour le moment." + (err && err.message ? ' (' + err.message + ')' : '');
+    }finally{
+      adminResultsSubmitBtn.disabled = false;
+    }
+  });
+}
+
+function renderGeneralRanking(){
+  const body = document.getElementById('rank-general-body');
+  if(!body) return;
+  const withPoints = approvedParticipants.filter(p => (p.points||0) > 0).sort((a,b) => (b.points||0) - (a.points||0));
+  if(withPoints.length === 0){
+    body.textContent = 'Barème de points à venir';
+    return;
+  }
+  body.innerHTML = '<ol class="rank-list">' + withPoints.slice(0,10).map(p => '<li>' + p.pseudo + ' <span class="pts">' + p.points + ' pt' + (p.points>1?'s':'') + '</span></li>').join('') + '</ol>';
+}
+
+const qApprovedForAdmin = query(collection(db, 'registrations'), where('kermesseId', '==', KERMESSE_ID), where('approved', '==', true));
+onSnapshot(qApprovedForAdmin, (snap) => {
+  approvedParticipants = [];
+  snap.forEach(d => approvedParticipants.push({ id: d.id, ...d.data() }));
+  if(adminResultsGameSelect && adminResultsGameSelect.value){
+    buildResultsForm();
+  }
+  renderGeneralRanking();
+});
+
+const qResults = query(collection(db, 'results'), where('kermesseId', '==', KERMESSE_ID));
+onSnapshot(qResults, (snap) => {
+  currentResultsBySlug = {};
+  snap.forEach(d => {
+    const data = d.data();
+    currentResultsBySlug[data.gameSlug] = data;
+  });
+  (window.__gxGames || []).forEach(g => {
+    const body = document.getElementById('rank-body-' + g.slug);
+    if(!body) return;
+    const res = currentResultsBySlug[g.slug];
+    if(!res || !res.ranking || res.ranking.length === 0){
+      body.innerHTML = 'Bientôt disponible';
+      return;
+    }
+    const sorted = res.ranking.slice().sort((a,b) => a.position - b.position);
+    body.innerHTML = '<ol class="rank-list">' + sorted.map(r => '<li>' + r.pseudo + ' <span class="pts">' + r.points + ' pt' + (r.points>1?'s':'') + '</span></li>').join('') + '</ol>';
+  });
+  if(adminResultsGameSelect && adminResultsGameSelect.value){
+    buildResultsForm();
+  }
+});
 </script>
