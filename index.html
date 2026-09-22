@@ -383,6 +383,41 @@ nav .links a:hover{color:var(--yellow);}
   width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:0.95rem;overflow:hidden;flex:none;background:var(--night-2);
 }
+.leaderboard-row,.participant-chip{cursor:pointer;transition:transform .15s ease,border-color .15s ease;}
+.leaderboard-row:hover,.participant-chip:hover{border-color:rgba(247,241,225,0.35);transform:translateY(-1px);}
+.gx-toast{
+  position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+  background:var(--night-2);color:var(--cream);border:1px solid rgba(247,241,225,0.2);
+  border-radius:999px;padding:12px 22px;font-family:'Space Grotesk';font-size:0.88rem;
+  opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;z-index:200;
+}
+.gx-toast.visible{opacity:1;transform:translateX(-50%) translateY(0);}
+.member-profile-modal{position:fixed;inset:0;z-index:150;display:flex;align-items:center;justify-content:center;}
+.member-profile-modal.hidden{display:none;}
+.member-profile-backdrop{position:absolute;inset:0;background:rgba(16,13,40,0.75);}
+.member-profile-card{
+  position:relative;max-width:440px;width:calc(100% - 40px);max-height:80vh;overflow-y:auto;
+  background:var(--night-2);border:1px solid rgba(247,241,225,0.15);border-radius:18px;
+  padding:32px 28px;z-index:1;
+}
+.member-profile-close{
+  position:absolute;top:14px;right:16px;background:transparent;border:none;color:var(--cream-dim);
+  font-size:1.4rem;cursor:pointer;line-height:1;
+}
+.member-profile-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.member-profile-avatar{
+  width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;overflow:hidden;flex:none;background:var(--night-3);
+}
+.member-profile-sub{font-size:0.85rem;color:var(--cream-dim);margin-top:4px;}
+.member-profile-row{font-size:0.9rem;margin-bottom:14px;color:var(--cream);}
+.member-profile-palmares{margin-top:24px;padding-top:18px;border-top:1px solid rgba(247,241,225,0.12);}
+.member-profile-palmares h4{font-family:'Fredoka';font-weight:600;font-size:0.95rem;margin-bottom:12px;}
+.member-profile-palmares-row{
+  display:flex;justify-content:space-between;gap:10px;font-size:0.85rem;
+  padding:8px 0;border-top:1px solid rgba(247,241,225,0.08);
+}
+.member-profile-palmares-row:first-of-type{border-top:none;}
 .leaderboard-avatar img{width:100%;height:100%;object-fit:cover;}
 .leaderboard-name{flex:1;font-family:'Fredoka';font-weight:600;color:var(--cream);font-size:0.92rem;}
 .leaderboard-meta{color:var(--cream-dim);font-size:0.76rem;margin-right:6px;}
@@ -403,7 +438,7 @@ nav .links a:hover{color:var(--yellow);}
 .day-check input{width:16px;height:16px;}
 
 /* ---------- Création d'arène (admin) ---------- */
-.arena-games-picker{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0;}
+.arena-games-picker{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0;}
 .arena-game-check{
   display:flex;align-items:center;gap:6px;background:var(--night-2);border:1px solid rgba(247,241,225,0.12);
   border-radius:999px;padding:7px 14px;font-size:0.82rem;color:var(--cream-dim);cursor:pointer;
@@ -411,10 +446,10 @@ nav .links a:hover{color:var(--yellow);}
 .arena-game-check input{width:14px;height:14px;}
 .arena-day-block{
   background:var(--night-2);border:1px solid rgba(247,241,225,0.1);border-radius:12px;
-  padding:16px;margin-bottom:14px;
+  padding:20px;margin-bottom:20px;
 }
-.arena-slots{display:flex;flex-direction:column;gap:8px;margin:10px 0;}
-.arena-slot-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.arena-slots{display:flex;flex-direction:column;gap:12px;margin:14px 0;}
+.arena-slot-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
 .arena-slot-row select{padding:10px 12px;border-radius:8px;border:2px solid rgba(247,241,225,0.15);font-family:'Space Grotesk';font-size:0.88rem;background:#fff;color:#1B1748;}
 
 /* ---------- LIVE ---------- */
@@ -513,17 +548,17 @@ footer .brand{justify-content:center;margin-bottom:10px;}
   padding:28px 26px;border:1px solid rgba(247,241,225,0.08);
 }
 .account-card h3{font-size:1.05rem;color:var(--cream);margin-bottom:14px;font-family:'Fredoka';font-weight:600;}
-.account-login{display:flex;gap:10px;flex-wrap:wrap;}
+.account-login{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
 .account-login input, .account-login select{
   flex:1;min-width:180px;padding:12px 14px;border-radius:8px;border:2px solid rgba(247,241,225,0.15);
   font-family:'Space Grotesk';font-size:0.95rem;background:#fff;color:#1B1748;
 }
-.arena-bareme-builder{display:flex;flex-direction:column;gap:8px;margin:10px 0;}
+.arena-bareme-builder{display:flex;flex-direction:column;gap:12px;margin:18px 0;}
 .upcoming-arena-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:rgba(247,241,225,0.06);border-radius:10px;padding:12px 16px;margin-bottom:10px;}
 .account-msg{margin-top:12px;font-size:0.85rem;font-weight:600;}
 .account-msg.ok{color:#5fd6a8;}
 .account-msg.err{color:#f28b7f;}
-.account-hint{font-size:0.78rem;color:var(--cream-dim);margin-top:10px;}
+.account-hint{font-size:0.78rem;color:var(--cream-dim);margin-top:14px;}
 .account-profile{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:20px;}
 .avatar-current{
   width:88px;height:88px;border-radius:50%;flex:none;
@@ -551,13 +586,13 @@ footer .brand{justify-content:center;margin-bottom:10px;}
 /* ---------- ADMIN ---------- */
 .admin-panel{
   max-width:640px;margin:24px auto 0;background:rgba(232,72,59,0.08);border:1px solid rgba(232,72,59,0.3);
-  border-radius:16px;padding:24px 26px;
+  border-radius:16px;padding:30px 32px;
 }
-.admin-panel h3{font-family:'Fredoka';font-weight:600;color:var(--cream);font-size:1rem;margin-bottom:4px;}
-.admin-panel .account-hint{margin-bottom:14px;}
+.admin-panel h3{font-family:'Fredoka';font-weight:600;color:var(--cream);font-size:1rem;margin-bottom:10px;}
+.admin-panel .account-hint{margin-bottom:20px;}
 .admin-item{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
-  padding:12px 0;border-top:1px solid rgba(247,241,225,0.08);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding:16px 0;border-top:1px solid rgba(247,241,225,0.08);
 }
 .admin-item:first-of-type{border-top:none;}
 .admin-item-info{font-size:0.88rem;color:var(--cream);}
@@ -567,11 +602,16 @@ footer .brand{justify-content:center;margin-bottom:10px;}
   border:none;border-radius:999px;padding:7px 14px;font-family:'Space Grotesk';font-weight:600;
   font-size:0.78rem;cursor:pointer;
 }
+.admin-panel .btn,.admin-results .btn{margin-top:18px;}
+.admin-results-select{
+  display:block;width:100%;padding:12px 14px;border-radius:8px;border:2px solid rgba(247,241,225,0.15);
+  font-family:'Space Grotesk';font-size:0.95rem;background:#fff;color:#1B1748;margin-bottom:14px;
+}
 .admin-approve{background:var(--teal);color:#0c2b23;}
 .admin-refuse{background:rgba(232,72,59,0.7);color:#fff;}
 .admin-empty{font-size:0.85rem;color:var(--cream-dim);}
 
-.admin-results{margin-top:22px;padding-top:18px;border-top:1px solid rgba(247,241,225,0.12);}
+.admin-results{margin-top:36px;padding-top:26px;border-top:1px solid rgba(247,241,225,0.12);}
 .admin-results select{
   width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(247,241,225,0.25);
   background:var(--night-2);color:var(--cream);font-family:'Space Grotesk';font-size:0.88rem;margin-bottom:10px;
@@ -1108,6 +1148,14 @@ nav .brand:hover{opacity:0.82;}
     </div>
   </div>
 </section>
+
+<div class="member-profile-modal hidden" id="member-profile-modal">
+  <div class="member-profile-backdrop" id="member-profile-backdrop"></div>
+  <div class="member-profile-card">
+    <button class="member-profile-close" id="member-profile-close" type="button">×</button>
+    <div id="member-profile-content"></div>
+  </div>
+</div>
 
 <footer>
   <div class="wrap">
@@ -2302,6 +2350,7 @@ onSnapshot(qResults, (snap) => {
 /* ---------- GX Community : classement général cumulé + membres (Round 15) ---------- */
 const communityLeaderboardEl = document.getElementById('community-leaderboard');
 const communityMembersEl = document.getElementById('community-members-list');
+let communityRankingCache = [];
 if(communityLeaderboardEl || communityMembersEl){
   const qAllApproved = query(collection(db, 'registrations'), where('approved', '==', true));
   onSnapshot(qAllApproved, (snap) => {
@@ -2318,13 +2367,14 @@ if(communityLeaderboardEl || communityMembersEl){
       byEmail[r.email].avatar = r.avatar;
     });
     const list = Object.values(byEmail).sort((a,b) => b.totalPoints - a.totalPoints);
+    communityRankingCache = list;
     if(communityLeaderboardEl){
       if(list.length === 0){
         communityLeaderboardEl.innerHTML = '<div class="admin-empty">Personne pour l\'instant.</div>';
       } else {
         communityLeaderboardEl.innerHTML = list.map((p, i) => {
           const rankClass = i < 3 ? ' top3' : '';
-          return '<div class="leaderboard-row' + rankClass + '"><span class="leaderboard-rank">' + (i+1) + '</span><span class="leaderboard-avatar" style="background:' + avatarBg(p.avatar) + '">' + avatarInnerHTML(p.avatar) + '</span><span class="leaderboard-name">' + p.pseudo + '</span><span class="leaderboard-meta">' + p.arenas + ' arène' + (p.arenas>1?'s':'') + '</span><span class="leaderboard-points">' + p.totalPoints + ' pt' + (p.totalPoints>1?'s':'') + '</span></div>';
+          return '<div class="leaderboard-row' + rankClass + '" data-email="' + p.email + '"><span class="leaderboard-rank">' + (i+1) + '</span><span class="leaderboard-avatar" style="background:' + avatarBg(p.avatar) + '">' + avatarInnerHTML(p.avatar) + '</span><span class="leaderboard-name">' + p.pseudo + '</span><span class="leaderboard-meta">' + p.arenas + ' arène' + (p.arenas>1?'s':'') + '</span><span class="leaderboard-points">' + p.totalPoints + ' pt' + (p.totalPoints>1?'s':'') + '</span></div>';
         }).join('');
       }
     }
@@ -2333,13 +2383,130 @@ if(communityLeaderboardEl || communityMembersEl){
         communityMembersEl.innerHTML = '<div class="admin-empty">Personne pour l\'instant.</div>';
       } else {
         communityMembersEl.innerHTML = list.map(p => {
-          return '<div class="participant-chip"><span class="chip-avatar" style="background:' + avatarBg(p.avatar) + '">' + avatarInnerHTML(p.avatar) + '</span><span>' + p.pseudo + '</span></div>';
+          return '<div class="participant-chip" data-email="' + p.email + '"><span class="chip-avatar" style="background:' + avatarBg(p.avatar) + '">' + avatarInnerHTML(p.avatar) + '</span><span>' + p.pseudo + '</span></div>';
         }).join('');
       }
     }
   });
 }
 
+
+/* ---------- Profils de membres cliquables (Round 17) ---------- */
+function showToast(msg){
+  let toast = document.getElementById('gx-toast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = 'gx-toast';
+    toast.className = 'gx-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  clearTimeout(window.__gxToastTimer);
+  window.__gxToastTimer = setTimeout(() => toast.classList.remove('visible'), 3200);
+}
+
+async function openMemberProfile(email){
+  if(!email) return;
+  if(!currentAuthEmail){
+    showToast('Connecte-toi pour voir les profils des membres.');
+    return;
+  }
+  const modal = document.getElementById('member-profile-modal');
+  const content = document.getElementById('member-profile-content');
+  if(!modal || !content) return;
+  content.innerHTML = '<div class="admin-empty">Chargement...</div>';
+  modal.classList.remove('hidden');
+
+  const cached = communityRankingCache.find(p => p.email === email);
+  const rankIndex = communityRankingCache.findIndex(p => p.email === email);
+  const pseudo = cached ? cached.pseudo : email;
+  const avatar = cached ? cached.avatar : null;
+  const totalPoints = cached ? cached.totalPoints : 0;
+  const rank = rankIndex > -1 ? (rankIndex + 1) : null;
+
+  let extra = {};
+  try {
+    const snap = await getDoc(doc(db, 'users', sanitizeEmail(email)));
+    if(snap.exists()) extra = snap.data();
+  } catch(e) {
+    /* règles pas encore étendues, ou lecture refusée : on continue sans prénom/âge/stand favori */
+  }
+
+  let palmares = [];
+  try {
+    const qMine = query(collection(db, 'registrations'), where('email', '==', email), where('approved', '==', true));
+    const mineSnap = await getDocs(qMine);
+    const rows = [];
+    mineSnap.forEach(d => rows.push(d.data()));
+    palmares = await Promise.all(rows.map(async (r) => {
+      let arenaName = r.kermesseId;
+      try {
+        const arenaSnap = await getDoc(doc(db, 'arenas', r.kermesseId));
+        if(arenaSnap.exists()){
+          const ad = arenaSnap.data();
+          arenaName = ad.shortName || ad.name || r.kermesseId;
+        }
+      } catch(e) {}
+      let rankInArena = null;
+      try {
+        const qArena = query(collection(db, 'registrations'), where('kermesseId', '==', r.kermesseId), where('approved', '==', true));
+        const arenaSnap2 = await getDocs(qArena);
+        const arenaRows = [];
+        arenaSnap2.forEach(d => arenaRows.push(d.data()));
+        arenaRows.sort((a, b) => (b.points || 0) - (a.points || 0));
+        const idx = arenaRows.findIndex(x => x.email === email);
+        if(idx > -1) rankInArena = idx + 1;
+      } catch(e) {}
+      return { arenaName: arenaName, points: r.points || 0, rank: rankInArena };
+    }));
+  } catch(e) {}
+
+  const prenom = extra.prenom || '';
+  const age = extra.age || '';
+  const standFavoriSlug = extra.standFavori || '';
+  let standName = '';
+  if(standFavoriSlug){
+    const g = (window.__gxGames || []).find(g => g.slug === standFavoriSlug);
+    standName = g ? g.name : standFavoriSlug;
+  }
+
+  let html = '';
+  html += '<div class="member-profile-header"><span class="member-profile-avatar" style="background:' + avatarBg(avatar) + '">' + avatarInnerHTML(avatar) + '</span><div><h3>' + pseudo + '</h3>';
+  if(prenom || age){
+    html += '<div class="member-profile-sub">' + prenom + (prenom && age ? ' · ' : '') + (age ? (age + ' ans') : '') + '</div>';
+  }
+  html += '</div></div>';
+  if(standName){
+    html += '<div class="member-profile-row"><strong>Stand favori :</strong> ' + standName + '</div>';
+  }
+  html += '<div class="member-profile-row"><strong>Classement général GALACTIX ARENA :</strong> ' + (rank ? ('#' + rank) : '—') + ' (' + totalPoints + ' pt' + (totalPoints > 1 ? 's' : '') + ')</div>';
+  html += '<div class="member-profile-palmares"><h4>Palmarès</h4>';
+  if(palmares.length === 0){
+    html += '<div class="admin-empty">Aucune arène pour l\'instant.</div>';
+  } else {
+    palmares.forEach(p => {
+      html += '<div class="member-profile-palmares-row"><span>' + p.arenaName + '</span><span>' + (p.rank ? ('#' + p.rank) : '—') + '</span><span>' + p.points + ' pt' + (p.points > 1 ? 's' : '') + '</span></div>';
+    });
+  }
+  html += '</div>';
+  content.innerHTML = html;
+}
+
+function handleMemberRowClick(e){
+  const row = e.target.closest('[data-email]');
+  if(!row) return;
+  openMemberProfile(row.getAttribute('data-email'));
+}
+if(communityLeaderboardEl) communityLeaderboardEl.addEventListener('click', handleMemberRowClick);
+if(communityMembersEl) communityMembersEl.addEventListener('click', handleMemberRowClick);
+
+const memberProfileModal = document.getElementById('member-profile-modal');
+const memberProfileClose = document.getElementById('member-profile-close');
+const memberProfileBackdrop = document.getElementById('member-profile-backdrop');
+function closeMemberProfile(){ if(memberProfileModal) memberProfileModal.classList.add('hidden'); }
+if(memberProfileClose) memberProfileClose.addEventListener('click', closeMemberProfile);
+if(memberProfileBackdrop) memberProfileBackdrop.addEventListener('click', closeMemberProfile);
 /* ---------- Archives GALACTIX : affichage public + gestion admin (Round 15) ---------- */
 const communityArchivesEl = document.getElementById('community-archives-list');
 const adminArchivesListEl = document.getElementById('admin-archives-list');
