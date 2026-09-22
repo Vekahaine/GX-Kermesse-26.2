@@ -37,20 +37,20 @@ nav{
   backdrop-filter:blur(8px);
   border-bottom:1px solid rgba(247,241,225,0.08);
 }
-nav .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:12px;padding-bottom:12px;}
-.brand{display:flex;align-items:center;gap:10px;font-family:'Fredoka';font-weight:600;font-size:1.05rem;letter-spacing:0.3px;}
-.brand img{height:32px;width:32px;border-radius:50%;object-fit:cover;background:var(--night-2);}
-nav .links{display:flex;gap:34px;font-size:1rem;white-space:nowrap;}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-top:14px;padding-bottom:14px;max-width:1200px;}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Fredoka';font-weight:600;font-size:1.05rem;letter-spacing:0.3px;white-space:nowrap;flex-shrink:0;}
+.brand img{height:32px;width:32px;border-radius:50%;object-fit:cover;background:var(--night-2);flex-shrink:0;}
+nav .links{display:flex;gap:38px;font-size:1rem;white-space:nowrap;}
 nav .links a{text-decoration:none;color:var(--cream-dim);font-weight:600;transition:color .2s;}
 nav .links a:hover{color:var(--yellow);}
-.nav-end{display:flex;align-items:center;gap:18px;}
-#nav-admin-link{text-decoration:none;color:var(--cream-dim);font-size:0.92rem;transition:color .2s;}
+.nav-end{display:flex;align-items:center;gap:24px;white-space:nowrap;}
+#nav-admin-link{text-decoration:none;color:var(--cream-dim);font-size:0.92rem;transition:color .2s;white-space:nowrap;}
 #nav-admin-link:hover{color:var(--yellow);}
 .nav-cta{
   background:var(--red);color:var(--cream);padding:9px 18px;border-radius:999px;
-  font-weight:600;font-size:0.88rem;text-decoration:none;
+  font-weight:600;font-size:0.88rem;text-decoration:none;white-space:nowrap;
 }
-@media(max-width:720px){nav .links{display:none;}}
+@media(max-width:860px){nav .links{display:none;}}
 
 /* ---------- BUNTING ---------- */
 .bunting{
@@ -514,10 +514,12 @@ footer .brand{justify-content:center;margin-bottom:10px;}
 }
 .account-card h3{font-size:1.05rem;color:var(--cream);margin-bottom:14px;font-family:'Fredoka';font-weight:600;}
 .account-login{display:flex;gap:10px;flex-wrap:wrap;}
-.account-login input{
+.account-login input, .account-login select{
   flex:1;min-width:180px;padding:12px 14px;border-radius:8px;border:2px solid rgba(247,241,225,0.15);
   font-family:'Space Grotesk';font-size:0.95rem;background:#fff;color:#1B1748;
 }
+.arena-bareme-builder{display:flex;flex-direction:column;gap:8px;margin:10px 0;}
+.upcoming-arena-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:rgba(247,241,225,0.06);border-radius:10px;padding:12px 16px;margin-bottom:10px;}
 .account-msg{margin-top:12px;font-size:0.85rem;font-weight:600;}
 .account-msg.ok{color:#5fd6a8;}
 .account-msg.err{color:#f28b7f;}
@@ -654,7 +656,7 @@ nav .brand:hover{opacity:0.82;}
 #compte .section-title{margin-bottom:6px;}
 
 /* ---------- RESEAUX SOCIAUX ---------- */
-.nav-socials{display:flex;align-items:center;gap:14px;}
+.nav-socials{display:flex;align-items:center;gap:18px;}
 .nav-socials a{color:var(--cream-dim);display:flex;transition:color .2s, transform .15s;}
 .nav-socials a:hover{transform:translateY(-1px);}
 .nav-socials svg{width:18px;height:18px;display:block;}
@@ -857,8 +859,22 @@ nav .brand:hover{opacity:0.82;}
         <label for="avatar-upload">Ou importe ta propre image :</label>
         <input type="file" id="avatar-upload" accept="image/*">
       </div>
+      <h3>Mes infos (facultatif)</h3>
+      <div class="account-login">
+        <input type="text" id="profile-prenom" placeholder="Prénom">
+        <input type="number" id="profile-age" placeholder="Âge" min="0" max="120">
+        <select id="profile-stand-favori"><option value="">Stand favori — aucun</option></select>
+      </div>
+      <button class="btn btn-ghost" type="button" id="profile-extra-save-btn">Enregistrer mes infos</button>
+      <div class="account-msg" id="profile-extra-msg"></div>
       <div class="account-msg" id="account-profile-msg"></div>
       <button class="account-logout" id="account-logout-btn">Se déconnecter</button>
+    </div>
+
+    <div class="account-card hidden" id="upcoming-arenas-card">
+      <h3>Arènes à venir</h3>
+      <p class="section-desc small">Inscris-toi directement à l'arène de ton choix.</p>
+      <div id="upcoming-arenas-list"></div>
     </div>
 
     <div class="account-card hidden" id="participate-status-card">
@@ -882,7 +898,8 @@ nav .brand:hover{opacity:0.82;}
 
       <div class="admin-results" id="admin-results">
         <h3>🏅 Résultats des étapes</h3>
-        <div class="account-hint">Choisis un jeu, puis indique le classement complet (tous les participants concernés). Les points se calculent automatiquement et le classement général se met à jour en direct.</div>
+        <div class="account-hint">Choisis d'abord l'arène concernée, puis un jeu, puis indique le classement complet (tous les participants concernés). Les points se calculent automatiquement et le classement général de cette arène se met à jour en direct.</div>
+        <select class="admin-results-select" id="admin-results-arena"></select>
         <select class="admin-results-select" id="admin-results-game"></select>
         <div id="admin-results-form"></div>
         <button class="btn btn-primary" id="admin-results-submit">Enregistrer ce classement</button>
@@ -905,6 +922,18 @@ nav .brand:hover{opacity:0.82;}
         <div id="admin-archives-list"></div>
       </div>
 
+      <div class="admin-results" id="admin-games-panel">
+        <h3>🎮 Stands (jeux)</h3>
+        <div class="account-hint">Ajoute un nouveau stand ici — il devient sélectionnable pour n'importe quelle arène. Un émoji est suggéré automatiquement, tu peux le remplacer.</div>
+        <div class="account-login">
+          <input type="text" id="game-name" placeholder="Nom du stand (ex. Mario Kart)">
+          <input type="text" id="game-icon" placeholder="Émoji" maxlength="8" style="max-width:90px;">
+        </div>
+        <button class="btn btn-primary" id="game-add-btn">Ajouter ce stand</button>
+        <div class="account-msg" id="game-add-msg"></div>
+        <div id="admin-games-list"></div>
+      </div>
+
       <div class="admin-results" id="admin-arenas-panel">
         <h3>🏟️ Créer une arène</h3>
         <div class="account-hint">Choisis les jeux, ajoute un ou plusieurs jours avec leurs créneaux, puis crée l'arène. Elle apparaîtra automatiquement sur la page "Arènes" et aura sa propre page.</div>
@@ -916,9 +945,12 @@ nav .brand:hover{opacity:0.82;}
           <input type="text" id="arena-slug" placeholder="Identifiant technique (ex. gx-27-1)">
         </div>
         <div class="arena-games-picker" id="arena-games-picker"></div>
+        <div class="account-hint">Barème de points pour les jeux sélectionnés (laisse une case vide si cette position n'existe pas) :</div>
+        <div class="arena-bareme-builder" id="arena-bareme-builder"></div>
         <div class="arena-days-builder" id="arena-days-builder"></div>
         <button class="btn btn-ghost" type="button" id="arena-add-day-btn">+ Ajouter un jour</button>
         <button class="btn btn-primary" id="arena-create-btn">Créer l'arène</button>
+        <button class="btn btn-ghost hidden" type="button" id="arena-cancel-edit-btn">Annuler la modification</button>
         <div class="account-msg" id="arena-create-msg"></div>
       </div>
 
@@ -1058,7 +1090,7 @@ nav .brand:hover{opacity:0.82;}
     </div>
 
     <div class="community-section">
-      <h3 class="arenas-subtitle">Classement général GALACTIX</h3>
+      <h3 class="arenas-subtitle">Classement général GALACTIX ARENA</h3>
       <p class="section-desc small">Tous les points remportés par chacun·e dans chaque arène, cumulés.</p>
       <div class="community-leaderboard" id="community-leaderboard"></div>
     </div>
@@ -1199,8 +1231,8 @@ import {
   onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc,
-  collection, query, where, orderBy, onSnapshot, serverTimestamp
+  getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
+  collection, query, where, orderBy, onSnapshot, serverTimestamp, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 /* ---------- Backend Firebase (comptes joueurs, avatars, participation) ---------- */
@@ -1687,6 +1719,8 @@ function hideAllAccountCards(){
   accountSetupCard.classList.add('hidden');
   accountProfileCard.classList.add('hidden');
   participateStatusCard.classList.add('hidden');
+  const upcomingArenasCardEl = document.getElementById('upcoming-arenas-card');
+  if(upcomingArenasCardEl) upcomingArenasCardEl.classList.add('hidden');
 }
 
 function renderGallery(selectedAvatar){
@@ -1863,11 +1897,20 @@ onAuthStateChanged(auth, (user) => {
     hideAllAccountCards();
     accountProfileCard.classList.remove('hidden');
     participateStatusCard.classList.remove('hidden');
+    const upcomingArenasCardEl = document.getElementById('upcoming-arenas-card');
+    if(upcomingArenasCardEl) upcomingArenasCardEl.classList.remove('hidden');
     accountPseudoDisplay.textContent = data.pseudo;
     accountEmailDisplay.textContent = data.email;
     avatarCurrent.innerHTML = avatarInnerHTML(data.avatar);
     avatarCurrent.style.background = avatarBg(data.avatar);
     renderGallery(data.avatar);
+    const profilePrenomEl = document.getElementById('profile-prenom');
+    const profileAgeEl = document.getElementById('profile-age');
+    const profileStandFavoriEl = document.getElementById('profile-stand-favori');
+    if(profilePrenomEl) profilePrenomEl.value = data.prenom || '';
+    if(profileAgeEl) profileAgeEl.value = (data.age != null) ? data.age : '';
+    if(typeof renderStandFavoriOptions === 'function') renderStandFavoriOptions();
+    if(profileStandFavoriEl) profileStandFavoriEl.value = data.standFavori || '';
   });
 
   if(email === ADMIN_EMAIL){
@@ -1882,6 +1925,8 @@ onAuthStateChanged(auth, (user) => {
         navAdminBadge.textContent = String(items.length);
       }
     });
+    if(typeof bootstrapGamesCatalog === 'function') bootstrapGamesCatalog();
+    if(typeof bootstrapGx262Arena === 'function') bootstrapGx262Arena();
   } else {
     setAdminUI(false);
   }
@@ -1907,26 +1952,30 @@ if(participantsListEl){
   });
 }
 
-/* ---------- Résultats des étapes & points (Round 8) ---------- */
-const POINTS_BAREME = {
+/* ---------- Résultats des étapes & points (Round 8, généralisé Round 16) ---------- */
+let POINTS_BAREME = {
   'quizz': [10,5,3],
   'wikirace': [5],
   'worms-wmd': [10,5,3],
   'pummel-party': [10,5,3],
   'speedrunners-2': [10,5,3]
 };
-const resultGames = (window.__gxGames || []).filter(g => POINTS_BAREME[g.slug]);
+let resultGames = (window.__gxGames || []).filter(g => POINTS_BAREME[g.slug]);
 function resultDocId(slug){ return KERMESSE_ID + '_' + slug; }
 
 const baremeToggleBtn = document.getElementById('bareme-toggle');
 const baremeTableEl = document.getElementById('bareme-table');
-if(baremeToggleBtn && baremeTableEl){
+function renderBaremeTable(){
+  if(!baremeTableEl) return;
   const posLabels = { 1: '1er', 2: '2e', 3: '3e', 4: '4e', 5: '5e' };
   baremeTableEl.innerHTML = '<ul class="bareme-list">' + resultGames.map(g => {
     const bareme = POINTS_BAREME[g.slug] || [];
     const parts = bareme.map((pts, idx) => (posLabels[idx+1] || (idx+1)+'e') + ' ' + pts + ' pts').join(', ');
     return '<li><strong>' + g.name + '</strong> — ' + parts + '</li>';
   }).join('') + '</ul>';
+}
+renderBaremeTable();
+if(baremeToggleBtn && baremeTableEl){
   baremeToggleBtn.addEventListener('click', () => {
     const isHidden = baremeTableEl.classList.contains('hidden');
     baremeTableEl.classList.toggle('hidden');
@@ -1934,6 +1983,46 @@ if(baremeToggleBtn && baremeTableEl){
   });
 }
 
+/* ---------- GX 26.2 : lecture live depuis arenas/gx-26-2 (Round 16) ---------- */
+let latestGx262ArenaData = null;
+function applyGx262ArenaEverywhere(a){
+  latestGx262ArenaData = a;
+  if(!a) return;
+  if(a.bareme && Object.keys(a.bareme).length){
+    POINTS_BAREME = a.bareme;
+    resultGames = (window.__gxGames || []).filter(g => POINTS_BAREME[g.slug]);
+    renderBaremeTable();
+  }
+  const chipsEl = document.querySelector('#arene-gx-26-2 .arena-card-games');
+  if(chipsEl && Array.isArray(a.games) && a.games.length){
+    chipsEl.innerHTML = a.games.map(slug => {
+      const g = (window.__gxGames||[]).find(x => x.slug === slug);
+      return g ? ('<span>' + g.icon + ' ' + g.name + '</span>') : '';
+    }).join('');
+  }
+  const programmeMain = document.querySelector('#programme .programme-main');
+  if(programmeMain && Array.isArray(a.days) && a.days.length){
+    programmeMain.innerHTML = a.days.map((d, i) => {
+      const items = (d.slots || []).map(s => {
+        const g = (window.__gxGames||[]).find(x => x.slug === s.gameSlug);
+        const name = g ? g.name : s.gameSlug;
+        const icon = g ? stripIcon(g.icon) : '';
+        return '<div class="tl-item"><div class="tl-time">' + s.time + '</div><div class="tl-name"><span class="tl-icon">' + icon + '</span><span>' + name + '</span></div></div>';
+      }).join('');
+      const heading = a.days.length > 1 ? ('<h4 class="arenas-subtitle">' + (d.label || ('Jour ' + (i+1))) + '</h4>') : '';
+      return heading + '<div class="timeline active">' + items + '</div>';
+    }).join('');
+  }
+  if(typeof arSelectedArenaId !== 'undefined' && arSelectedArenaId === 'gx-26-2'){
+    applyArenaDataForResults(a);
+  }
+}
+onSnapshot(doc(db, 'arenas', 'gx-26-2'), (snap) => {
+  applyGx262ArenaEverywhere(snap.exists() ? snap.data() : null);
+});
+
+/* ---------- Saisie des résultats par l'admin, arène au choix (Round 16) ---------- */
+const adminResultsArenaSelect = document.getElementById('admin-results-arena');
 const adminResultsGameSelect = document.getElementById('admin-results-game');
 const adminResultsForm = document.getElementById('admin-results-form');
 const adminResultsSubmitBtn = document.getElementById('admin-results-submit');
@@ -1942,13 +2031,27 @@ const adminResultsMsg = document.getElementById('admin-results-msg');
 let approvedParticipants = [];
 let currentResultsBySlug = {};
 
+let arSelectedArenaId = 'gx-26-2';
+let arArenaData = null;
+let arApprovedParticipants = [];
+let arCurrentResultsBySlug = {};
+let arGames = [];
+let arBareme = {};
+let arResultsUnsubApproved = null;
+let arResultsUnsubResults = null;
+
+function getArApproved(){ return arSelectedArenaId === 'gx-26-2' ? approvedParticipants : arApprovedParticipants; }
+function getArResultsMap(){ return arSelectedArenaId === 'gx-26-2' ? currentResultsBySlug : arCurrentResultsBySlug; }
+
 function refreshResultsSelectOptions(){
+  if(!adminResultsForm) return;
   const selects = Array.from(adminResultsForm.querySelectorAll('select'));
   const chosen = selects.map(s => s.value).filter(Boolean);
+  const approved = getArApproved();
   selects.forEach(sel => {
     const current = sel.value;
     sel.innerHTML = '<option value="">— choisir —</option>';
-    approvedParticipants.forEach(p => {
+    approved.forEach(p => {
       if(p.email === current || chosen.indexOf(p.email) === -1){
         const opt = document.createElement('option');
         opt.value = p.email;
@@ -1963,9 +2066,10 @@ function refreshResultsSelectOptions(){
 function buildResultsForm(){
   if(!adminResultsGameSelect) return;
   const slug = adminResultsGameSelect.value;
-  const bareme = POINTS_BAREME[slug] || [];
-  const positions = Math.max(bareme.length, approvedParticipants.length);
-  const existing = currentResultsBySlug[slug];
+  const bareme = arBareme[slug] || [];
+  const approved = getArApproved();
+  const positions = Math.max(bareme.length, approved.length);
+  const existing = getArResultsMap()[slug];
   const existingByPos = {};
   if(existing && existing.ranking){
     existing.ranking.forEach(r => { existingByPos[r.position] = r.email; });
@@ -2014,17 +2118,95 @@ async function recomputeAllPoints(){
   }));
 }
 
-if(adminResultsGameSelect){
-  resultGames.forEach(g => {
+async function recomputeArenaPointsGeneric(arenaId, gamesList, approvedList){
+  const totals = {};
+  for(const g of gamesList){
+    try{
+      const snap = await getDoc(doc(db, 'results', arenaId + '_' + g.slug));
+      if(snap.exists()){
+        (snap.data().ranking || []).forEach(r => {
+          totals[r.email] = (totals[r.email] || 0) + (r.points || 0);
+        });
+      }
+    }catch(err){ /* on continue */ }
+  }
+  await Promise.all(approvedList.map(async p => {
+    const total = totals[p.email] || 0;
+    if(p.points !== total){
+      try{ await updateDoc(doc(db, 'registrations', p.id), { points: total }); }catch(err){ /* ignore */ }
+    }
+  }));
+}
+
+function refreshResultsFormIfNeeded(){
+  if(adminResultsGameSelect && adminResultsGameSelect.value) buildResultsForm();
+}
+
+function populateArenaResultsGameSelect(){
+  if(!adminResultsGameSelect) return;
+  const prev = adminResultsGameSelect.value;
+  adminResultsGameSelect.innerHTML = '';
+  arGames.forEach(g => {
     const opt = document.createElement('option');
     opt.value = g.slug;
     opt.textContent = g.name;
     adminResultsGameSelect.appendChild(opt);
   });
-  if(resultGames.length){
-    adminResultsGameSelect.value = resultGames[0].slug;
+  if(arGames.length){
+    adminResultsGameSelect.value = arGames.some(g => g.slug === prev) ? prev : arGames[0].slug;
     buildResultsForm();
+  } else if(adminResultsForm){
+    adminResultsForm.innerHTML = '<p class="section-desc small">Cette arène n\'a pas encore de barème de points défini pour ses jeux.</p>';
   }
+}
+
+function applyArenaDataForResults(a){
+  arArenaData = a;
+  arBareme = (a && a.bareme) ? a.bareme : {};
+  const gamesList = (a && Array.isArray(a.games)) ? a.games : [];
+  arGames = gamesList.filter(slug => arBareme[slug]).map(slug => (window.__gxGames || []).find(g => g.slug === slug) || { slug: slug, name: slug, icon: '🎮' });
+  populateArenaResultsGameSelect();
+}
+
+function subscribeResultsArena(arenaId){
+  arSelectedArenaId = arenaId;
+  if(arResultsUnsubApproved){ arResultsUnsubApproved(); arResultsUnsubApproved = null; }
+  if(arResultsUnsubResults){ arResultsUnsubResults(); arResultsUnsubResults = null; }
+  if(arenaId === 'gx-26-2'){
+    applyArenaDataForResults(latestGx262ArenaData || { games: resultGames.map(g => g.slug), bareme: POINTS_BAREME });
+  } else {
+    getDoc(doc(db, 'arenas', arenaId)).then(snap => applyArenaDataForResults(snap.exists() ? snap.data() : null));
+    arResultsUnsubApproved = onSnapshot(query(collection(db, 'registrations'), where('kermesseId', '==', arenaId), where('approved', '==', true)), (snap) => {
+      arApprovedParticipants = [];
+      snap.forEach(d => arApprovedParticipants.push({ id: d.id, ...d.data() }));
+      refreshResultsFormIfNeeded();
+    });
+    arResultsUnsubResults = onSnapshot(query(collection(db, 'results'), where('kermesseId', '==', arenaId)), (snap) => {
+      arCurrentResultsBySlug = {};
+      snap.forEach(d => { const data = d.data(); arCurrentResultsBySlug[data.gameSlug] = data; });
+      refreshResultsFormIfNeeded();
+    });
+  }
+}
+
+if(adminResultsArenaSelect){
+  onSnapshot(collection(db, 'arenas'), (snap) => {
+    const prev = adminResultsArenaSelect.value || 'gx-26-2';
+    const items = [{ id: 'gx-26-2', name: 'Kermesse GX 26.2' }];
+    snap.forEach(d => { if(d.id !== 'gx-26-2') items.push({ id: d.id, name: d.data().name }); });
+    adminResultsArenaSelect.innerHTML = '';
+    items.forEach(it => {
+      const opt = document.createElement('option');
+      opt.value = it.id;
+      opt.textContent = it.name;
+      adminResultsArenaSelect.appendChild(opt);
+    });
+    adminResultsArenaSelect.value = items.some(it => it.id === prev) ? prev : 'gx-26-2';
+  });
+  adminResultsArenaSelect.addEventListener('change', () => subscribeResultsArena(adminResultsArenaSelect.value));
+}
+if(adminResultsGameSelect){
+  subscribeResultsArena('gx-26-2');
   adminResultsGameSelect.addEventListener('change', buildResultsForm);
   adminResultsForm.addEventListener('change', (e) => {
     if(e.target && e.target.tagName === 'SELECT') refreshResultsSelectOptions();
@@ -2032,14 +2214,15 @@ if(adminResultsGameSelect){
   adminResultsSubmitBtn.addEventListener('click', async () => {
     const slug = adminResultsGameSelect.value;
     if(!slug) return;
-    const game = resultGames.find(g => g.slug === slug);
-    const bareme = POINTS_BAREME[slug] || [];
+    const game = arGames.find(g => g.slug === slug);
+    const bareme = arBareme[slug] || [];
+    const approved = getArApproved();
     const selects = Array.from(adminResultsForm.querySelectorAll('select'));
     const ranking = [];
     selects.forEach(sel => {
       if(!sel.value) return;
       const pos = Number(sel.dataset.position);
-      const p = approvedParticipants.find(x => x.email === sel.value);
+      const p = approved.find(x => x.email === sel.value);
       if(!p) return;
       ranking.push({ email: p.email, pseudo: p.pseudo, position: pos, points: bareme[pos-1] || 0 });
     });
@@ -2052,15 +2235,19 @@ if(adminResultsGameSelect){
     adminResultsMsg.className = 'account-msg';
     adminResultsMsg.textContent = 'Enregistrement…';
     try{
-      await setDoc(doc(db, 'results', resultDocId(slug)), {
-        kermesseId: KERMESSE_ID,
+      await setDoc(doc(db, 'results', arSelectedArenaId + '_' + slug), {
+        kermesseId: arSelectedArenaId,
         gameSlug: slug,
         gameName: game ? game.name : slug,
         ranking,
         updatedAt: serverTimestamp(),
         updatedBy: ADMIN_EMAIL
       });
-      await recomputeAllPoints();
+      if(arSelectedArenaId === 'gx-26-2'){
+        await recomputeAllPoints();
+      } else {
+        await recomputeArenaPointsGeneric(arSelectedArenaId, arGames, approved);
+      }
       adminResultsMsg.className = 'account-msg ok';
       adminResultsMsg.textContent = 'Classement enregistré, points recalculés !';
     }catch(err){
@@ -2087,9 +2274,7 @@ const qApprovedForAdmin = query(collection(db, 'registrations'), where('kermesse
 onSnapshot(qApprovedForAdmin, (snap) => {
   approvedParticipants = [];
   snap.forEach(d => approvedParticipants.push({ id: d.id, ...d.data() }));
-  if(adminResultsGameSelect && adminResultsGameSelect.value){
-    buildResultsForm();
-  }
+  if(arSelectedArenaId === 'gx-26-2'){ refreshResultsFormIfNeeded(); }
   renderGeneralRanking();
 });
 
@@ -2111,9 +2296,7 @@ onSnapshot(qResults, (snap) => {
     const sorted = res.ranking.slice().sort((a,b) => a.position - b.position);
     body.innerHTML = '<ol class="rank-list">' + sorted.map(r => '<li>' + r.pseudo + ' <span class="pts">' + r.points + ' pt' + (r.points>1?'s':'') + '</span></li>').join('') + '</ol>';
   });
-  if(adminResultsGameSelect && adminResultsGameSelect.value){
-    buildResultsForm();
-  }
+  if(arSelectedArenaId === 'gx-26-2'){ refreshResultsFormIfNeeded(); }
 });
 
 /* ---------- GX Community : classement général cumulé + membres (Round 15) ---------- */
@@ -2234,7 +2417,12 @@ if(archiveAddBtn){
 function stripIcon(icon){ return (icon || '').replace(/<[^>]*>/g, ''); }
 
 const arenaGamesPickerEl = document.getElementById('arena-games-picker');
-if(arenaGamesPickerEl){
+const arenaBaremeBuilderEl = document.getElementById('arena-bareme-builder');
+let arenaBaremeDraft = {};
+function renderArenaGamesPicker(checkedSlugs){
+  if(!arenaGamesPickerEl) return;
+  const checked = checkedSlugs || Array.from(document.querySelectorAll('.arena-game-cb:checked')).map(cb => cb.value);
+  arenaGamesPickerEl.innerHTML = '';
   (window.__gxGames || []).forEach(g => {
     const label = document.createElement('label');
     label.className = 'arena-game-check';
@@ -2242,11 +2430,49 @@ if(arenaGamesPickerEl){
     cb.type = 'checkbox';
     cb.value = g.slug;
     cb.className = 'arena-game-cb';
+    if(checked.indexOf(g.slug) !== -1) cb.checked = true;
+    cb.addEventListener('change', renderArenaBaremeBuilder);
     label.appendChild(cb);
     label.appendChild(document.createTextNode(' ' + stripIcon(g.icon) + ' ' + g.name));
     arenaGamesPickerEl.appendChild(label);
   });
 }
+function renderArenaBaremeBuilder(){
+  if(!arenaBaremeBuilderEl) return;
+  const checked = Array.from(document.querySelectorAll('.arena-game-cb:checked')).map(cb => cb.value);
+  arenaBaremeBuilderEl.innerHTML = '';
+  if(checked.length === 0){
+    arenaBaremeBuilderEl.innerHTML = '<p class="section-desc small">Choisis des jeux ci-dessus pour définir leur barème de points.</p>';
+    return;
+  }
+  checked.forEach(slug => {
+    const g = (window.__gxGames || []).find(x => x.slug === slug) || { name: slug, icon: '🎮' };
+    if(!arenaBaremeDraft[slug]) arenaBaremeDraft[slug] = [10,5,3];
+    const row = document.createElement('div');
+    row.className = 'arena-slot-row';
+    const label = document.createElement('span');
+    label.className = 'admin-results-pos';
+    label.textContent = stripIcon(g.icon) + ' ' + g.name + ' :';
+    row.appendChild(label);
+    ['1er','2e','3e'].forEach((posLabel, idx) => {
+      const inp = document.createElement('input');
+      inp.type = 'number';
+      inp.min = '0';
+      inp.style.width = '70px';
+      inp.style.marginLeft = '8px';
+      inp.placeholder = posLabel;
+      inp.value = (arenaBaremeDraft[slug][idx] != null) ? arenaBaremeDraft[slug][idx] : '';
+      inp.addEventListener('input', () => {
+        const v = inp.value === '' ? null : Number(inp.value);
+        arenaBaremeDraft[slug][idx] = (v == null || isNaN(v)) ? null : v;
+      });
+      row.appendChild(inp);
+    });
+    arenaBaremeBuilderEl.appendChild(row);
+  });
+}
+renderArenaGamesPicker();
+renderArenaBaremeBuilder();
 
 function addArenaSlotRow(slotsContainer){
   const row = document.createElement('div');
@@ -2326,6 +2552,56 @@ if(arenaNameInput && arenaSlugInput){
   arenaSlugInput.addEventListener('input', () => { arenaSlugInput.dataset.touched = '1'; });
 }
 const arenaCreateBtn = document.getElementById('arena-create-btn');
+const arenaCancelEditBtn = document.getElementById('arena-cancel-edit-btn');
+let editingArenaSlug = null;
+
+function resetArenaForm(){
+  editingArenaSlug = null;
+  arenaNameInput.value = '';
+  document.getElementById('arena-short-name').value = '';
+  arenaSlugInput.value = '';
+  arenaSlugInput.disabled = false;
+  arenaSlugInput.dataset.touched = '';
+  arenaBaremeDraft = {};
+  document.getElementById('arena-days-builder').innerHTML = '';
+  renderArenaGamesPicker([]);
+  renderArenaBaremeBuilder();
+  if(arenaCreateBtn) arenaCreateBtn.textContent = "Créer l'arène";
+  if(arenaCancelEditBtn) arenaCancelEditBtn.classList.add('hidden');
+}
+
+function loadArenaIntoForm(a){
+  editingArenaSlug = a.kermesseId;
+  arenaNameInput.value = a.name || '';
+  document.getElementById('arena-short-name').value = a.shortName || '';
+  arenaSlugInput.value = a.kermesseId;
+  arenaSlugInput.disabled = true;
+  arenaBaremeDraft = JSON.parse(JSON.stringify(a.bareme || {}));
+  renderArenaGamesPicker(a.games || []);
+  renderArenaBaremeBuilder();
+  const builder = document.getElementById('arena-days-builder');
+  builder.innerHTML = '';
+  (a.days || []).forEach(d => {
+    addArenaDayBlock();
+    const block = builder.lastElementChild;
+    block.querySelector('.arena-day-date').value = d.date || '';
+    block.querySelector('.arena-day-label').value = d.label || '';
+    const slotsContainer = block.querySelector('.arena-slots');
+    slotsContainer.innerHTML = '';
+    (d.slots || []).forEach(s => {
+      addArenaSlotRow(slotsContainer);
+      const row = slotsContainer.lastElementChild;
+      row.querySelector('.arena-slot-time').value = s.time || '';
+      row.querySelector('.arena-slot-game').value = s.gameSlug || '';
+    });
+  });
+  if(arenaCreateBtn) arenaCreateBtn.textContent = 'Enregistrer les modifications';
+  if(arenaCancelEditBtn) arenaCancelEditBtn.classList.remove('hidden');
+  const panel = document.getElementById('admin-arenas-panel');
+  if(panel) panel.scrollIntoView({behavior:'instant', block:'start'});
+}
+if(arenaCancelEditBtn){ arenaCancelEditBtn.addEventListener('click', resetArenaForm); }
+
 if(arenaCreateBtn){
   arenaCreateBtn.addEventListener('click', async () => {
     const msg = document.getElementById('arena-create-msg');
@@ -2361,22 +2637,39 @@ if(arenaCreateBtn){
       })).filter(s => s.time);
       return { date: date || null, label: label || date || 'Jour', slots: slots };
     });
+    const baremeOut = {};
+    gamesChecked.forEach(gslug => {
+      const arr = (arenaBaremeDraft[gslug] || []).filter(v => v != null && v > 0);
+      if(arr.length) baremeOut[gslug] = arr;
+    });
+    const targetSlug = editingArenaSlug || slug;
     try{
-      await setDoc(doc(db, 'arenas', slug), {
-        kermesseId: slug,
-        name: name,
-        shortName: shortName || name,
-        status: 'upcoming',
-        games: gamesChecked,
-        days: days,
-        createdAt: serverTimestamp(),
-        archivedAt: null
-      });
-      msg.className = 'account-msg ok';
-      msg.textContent = 'Arène créée !';
-      arenaNameInput.value = ''; shortNameInput.value = ''; arenaSlugInput.value = ''; arenaSlugInput.dataset.touched = '';
-      document.querySelectorAll('.arena-game-cb').forEach(cb => cb.checked = false);
-      document.getElementById('arena-days-builder').innerHTML = '';
+      if(editingArenaSlug){
+        await updateDoc(doc(db, 'arenas', targetSlug), {
+          name: name,
+          shortName: shortName || name,
+          games: gamesChecked,
+          days: days,
+          bareme: baremeOut
+        });
+        msg.className = 'account-msg ok';
+        msg.textContent = 'Arène mise à jour !';
+      } else {
+        await setDoc(doc(db, 'arenas', targetSlug), {
+          kermesseId: targetSlug,
+          name: name,
+          shortName: shortName || name,
+          status: 'upcoming',
+          games: gamesChecked,
+          days: days,
+          bareme: baremeOut,
+          createdAt: serverTimestamp(),
+          archivedAt: null
+        });
+        msg.className = 'account-msg ok';
+        msg.textContent = 'Arène créée !';
+      }
+      resetArenaForm();
     }catch(e){
       msg.className = 'account-msg err';
       msg.textContent = e.message;
@@ -2400,6 +2693,11 @@ if(adminArenasListEl){
       const statusLabel = a.status === 'archived' ? 'Archivée' : 'À venir';
       row.innerHTML = '<div class="admin-item-info">' + a.name + '<span>' + a.kermesseId + ' — ' + statusLabel + '</span></div><div class="admin-actions"></div>';
       const actions = row.querySelector('.admin-actions');
+      const editBtn = document.createElement('button');
+      editBtn.className = 'admin-btn';
+      editBtn.textContent = 'Modifier';
+      editBtn.addEventListener('click', () => loadArenaIntoForm(a));
+      actions.appendChild(editBtn);
       if(a.status !== 'archived'){
         const archiveBtn = document.createElement('button');
         archiveBtn.className = 'admin-btn admin-approve';
@@ -2471,6 +2769,7 @@ if(dynamicUpcomingEl || dynamicArchivedEl){
     const archived = [];
     snap.forEach(d => {
       const a = { id: d.id, ...d.data() };
+      if(a.kermesseId === 'gx-26-2') return; // déjà affichée via la carte statique de la page Arènes
       arenasCache[a.kermesseId] = a;
       if(a.status === 'archived'){ archived.push(a); } else { upcoming.push(a); }
     });
@@ -2594,6 +2893,250 @@ async function renderDynamicArenaPage(kermesseId){
       body.innerHTML = '<ol class="rank-list">' + sorted.map(r => '<li>' + r.pseudo + ' <span class="pts">' + r.points + ' pt' + (r.points > 1 ? 's' : '') + '</span></li>').join('') + '</ol>';
     });
     dynamicArenaUnsubs.push(uRes);
+  });
+}
+
+/* ---------- Catalogue des stands en Firestore (Round 16) ---------- */
+const EMOJI_KEYWORDS = [
+  [/quiz|culture|trivia/i, '🧠'],
+  [/geo|map|monde|carte du monde/i, '🌍'],
+  [/party|fête|soiree|soirée/i, '🥳'],
+  [/pummel|bagarre|combat|fight|boxe|boxing/i, '🥊'],
+  [/worms|bombe|explos/i, '💣'],
+  [/chameleon|couleur|color|dessin|draw|peinture|\bart\b/i, '🎨'],
+  [/speed|run|course|race|circuit/i, '🏃'],
+  [/wiki|encyclo|savoir/i, '📚'],
+  [/carte|card|poker|belote|tarot/i, '🃏'],
+  [/musique|music|chant|sing|karaoke|karaoké/i, '🎤'],
+  [/danse|dance/i, '💃'],
+  [/foot|ballon|soccer/i, '⚽'],
+  [/basket/i, '🏀'],
+  [/eau|water|piscine|aqua/i, '💧'],
+  [/cuisine|cook|recette|chef/i, '🍳'],
+  [/tir|shoot|fusil|arme|viseur/i, '🎯'],
+  [/voiture|kart|car|racing/i, '🏎️'],
+  [/puzzle|énigme|enigme|escape/i, '🧩'],
+  [/memory|mémoire/i, '🧠'],
+  [/zombie|horreur|horror/i, '🧟'],
+  [/space|espace|galaxie|galaxy|étoile/i, '🚀'],
+  [/pirate/i, '🏴'],
+  [/ninja/i, '🥷'],
+  [/robot|méca|mecha/i, '🤖'],
+  [/animal|zoo|bête/i, '🐾'],
+  [/voyage|travel/i, '✈️'],
+  [/dart|fléchette/i, '🎯'],
+  [/bowling/i, '🎳'],
+  [/echec|échec|chess/i, '♟️'],
+  [/billard|pool/i, '🎱'],
+  [/magie|magic/i, '🎩'],
+  [/loup|garou|werewolf/i, '🐺'],
+  [/sport/i, '🏅']
+];
+function guessEmojiForName(name){
+  const n = (name || '').toLowerCase();
+  for(const pair of EMOJI_KEYWORDS){
+    if(pair[0].test(n)) return pair[1];
+  }
+  return '🎮';
+}
+
+const gameNameInput = document.getElementById('game-name');
+const gameIconInput = document.getElementById('game-icon');
+if(gameNameInput && gameIconInput){
+  gameNameInput.addEventListener('input', () => {
+    if(!gameIconInput.dataset.touched){
+      gameIconInput.value = guessEmojiForName(gameNameInput.value);
+    }
+  });
+  gameIconInput.addEventListener('input', () => { gameIconInput.dataset.touched = '1'; });
+}
+const gameAddBtn = document.getElementById('game-add-btn');
+if(gameAddBtn){
+  gameAddBtn.addEventListener('click', async () => {
+    const msg = document.getElementById('game-add-msg');
+    msg.className = 'account-msg';
+    msg.textContent = '';
+    const name = gameNameInput.value.trim();
+    if(!name){
+      msg.className = 'account-msg err';
+      msg.textContent = 'Donne un nom au stand.';
+      return;
+    }
+    const icon = gameIconInput.value.trim() || guessEmojiForName(name);
+    const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    if(!slug){
+      msg.className = 'account-msg err';
+      msg.textContent = 'Nom invalide.';
+      return;
+    }
+    try{
+      await setDoc(doc(db, 'games', slug), {
+        name: name, slug: slug, icon: icon,
+        createdAt: serverTimestamp(), createdBy: ADMIN_EMAIL
+      });
+      msg.className = 'account-msg ok';
+      msg.textContent = 'Stand ajouté !';
+      gameNameInput.value = ''; gameIconInput.value = ''; gameIconInput.dataset.touched = '';
+    }catch(e){
+      msg.className = 'account-msg err';
+      msg.textContent = e.message;
+    }
+  });
+}
+const adminGamesListEl = document.getElementById('admin-games-list');
+onSnapshot(collection(db, 'games'), (snap) => {
+  const list = [];
+  snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+  if(list.length){
+    list.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+    window.__gxGames = list;
+  }
+  if(adminGamesListEl){
+    if(list.length === 0){
+      adminGamesListEl.innerHTML = '<div class="admin-empty">Aucun stand pour le moment.</div>';
+    } else {
+      adminGamesListEl.innerHTML = '';
+      list.forEach(g => {
+        const row = document.createElement('div');
+        row.className = 'admin-item';
+        row.innerHTML = '<div class="admin-item-info">' + stripIcon(g.icon) + ' ' + g.name + '<span>' + g.slug + '</span></div><div class="admin-actions"></div>';
+        const actions = row.querySelector('.admin-actions');
+        const delBtn = document.createElement('button');
+        delBtn.className = 'admin-btn admin-refuse';
+        delBtn.textContent = 'Supprimer';
+        delBtn.addEventListener('click', async () => {
+          if(window.confirm('Supprimer le stand "' + g.name + '" ?')){
+            await deleteDoc(doc(db, 'games', g.id));
+          }
+        });
+        actions.appendChild(delBtn);
+        adminGamesListEl.appendChild(row);
+      });
+    }
+  }
+  if(typeof renderArenaGamesPicker === 'function'){
+    const checked = Array.from(document.querySelectorAll('.arena-game-cb:checked')).map(cb => cb.value);
+    renderArenaGamesPicker(checked);
+  }
+  if(typeof renderStandFavoriOptions === 'function') renderStandFavoriOptions();
+});
+
+async function bootstrapGamesCatalog(){
+  try{
+    const snap = await getDocs(collection(db, 'games'));
+    if(snap.empty){
+      const batch = writeBatch(db);
+      (window.__gxGames || []).forEach(g => {
+        batch.set(doc(db, 'games', g.slug), {
+          name: g.name, slug: g.slug, icon: stripIcon(g.icon),
+          createdAt: serverTimestamp(), createdBy: ADMIN_EMAIL
+        });
+      });
+      await batch.commit();
+    }
+  }catch(err){ console.warn('bootstrapGamesCatalog', err); }
+}
+
+async function bootstrapGx262Arena(){
+  try{
+    const ref = doc(db, 'arenas', 'gx-26-2');
+    const snap = await getDoc(ref);
+    if(!snap.exists()){
+      await setDoc(ref, {
+        kermesseId: 'gx-26-2',
+        name: 'Kermesse GX 26.2',
+        shortName: 'GX 26.2',
+        status: 'upcoming',
+        games: ['quizz','geoguessr','pummel-party','worms-wmd','mecha-chameleon','speedrunners-2','wikirace'],
+        days: [{
+          label: 'Samedi 3 octobre',
+          date: '2026-10-03',
+          slots: [
+            { time: '20h30 – 21h00', gameSlug: 'quizz' },
+            { time: '21h00 – 21h15', gameSlug: 'wikirace' },
+            { time: '21h15 – 21h45', gameSlug: 'worms-wmd' },
+            { time: '21h45 – 22h30', gameSlug: 'pummel-party' },
+            { time: '22h30 – 23h15', gameSlug: 'speedrunners-2' }
+          ]
+        }],
+        bareme: { 'quizz':[10,5,3], 'wikirace':[5], 'worms-wmd':[10,5,3], 'pummel-party':[10,5,3], 'speedrunners-2':[10,5,3] },
+        createdAt: serverTimestamp(),
+        archivedAt: null,
+        createdBy: ADMIN_EMAIL
+      });
+    }
+  }catch(err){ console.warn('bootstrapGx262Arena', err); }
+}
+
+/* ---------- Mon compte : arènes à venir + infos facultatives (Round 16) ---------- */
+const upcomingArenasListEl = document.getElementById('upcoming-arenas-list');
+if(upcomingArenasListEl){
+  onSnapshot(collection(db, 'arenas'), (snap) => {
+    const items = [{
+      kermesseId: 'gx-26-2',
+      name: (latestGx262ArenaData && latestGx262ArenaData.name) || 'Kermesse GX 26.2',
+      shortName: (latestGx262ArenaData && latestGx262ArenaData.shortName) || 'GX 26.2',
+      days: (latestGx262ArenaData && latestGx262ArenaData.days) || activeKermesseDays
+    }];
+    snap.forEach(d => {
+      if(d.id === 'gx-26-2') return;
+      const a = d.data();
+      if(a.status === 'archived') return;
+      items.push({ kermesseId: d.id, name: a.name, shortName: a.shortName || a.name, days: a.days || [] });
+    });
+    upcomingArenasListEl.innerHTML = items.map(it => {
+      const daysLabel = (it.days || []).map(x => x.label).join(' + ') || '';
+      return '<div class="upcoming-arena-row"><div><strong>' + it.name + '</strong><br><span class="account-hint">' + daysLabel + '</span></div><button class="btn btn-primary upcoming-arena-register-btn" data-kermesse="' + it.kermesseId + '" type="button">S\'inscrire</button></div>';
+    }).join('');
+    upcomingArenasListEl.querySelectorAll('.upcoming-arena-register-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const kid = btn.dataset.kermesse;
+        const it = items.find(x => x.kermesseId === kid);
+        if(!it) return;
+        setActiveKermesse(it.kermesseId, it.name, it.shortName, (it.days[0] || {}).label || it.name, it.days || []);
+        const card = document.getElementById('participate-status-card');
+        if(card) card.scrollIntoView({behavior:'instant', block:'start'});
+      });
+    });
+  });
+}
+
+const profilePrenomInput = document.getElementById('profile-prenom');
+const profileAgeInput = document.getElementById('profile-age');
+const profileStandFavoriSelect = document.getElementById('profile-stand-favori');
+function renderStandFavoriOptions(){
+  if(!profileStandFavoriSelect) return;
+  const current = profileStandFavoriSelect.value;
+  profileStandFavoriSelect.innerHTML = '<option value="">Stand favori — aucun</option>';
+  (window.__gxGames || []).forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.slug;
+    opt.textContent = stripIcon(g.icon) + ' ' + g.name;
+    profileStandFavoriSelect.appendChild(opt);
+  });
+  if(current) profileStandFavoriSelect.value = current;
+}
+renderStandFavoriOptions();
+const profileExtraSaveBtn = document.getElementById('profile-extra-save-btn');
+if(profileExtraSaveBtn){
+  profileExtraSaveBtn.addEventListener('click', async () => {
+    const msg = document.getElementById('profile-extra-msg');
+    if(!currentUserRef){ return; }
+    msg.className = 'account-msg';
+    msg.textContent = 'Enregistrement…';
+    const payload = {};
+    payload.prenom = profilePrenomInput.value.trim() || null;
+    const ageVal = profileAgeInput.value === '' ? null : Number(profileAgeInput.value);
+    payload.age = (ageVal == null || isNaN(ageVal)) ? null : ageVal;
+    payload.standFavori = profileStandFavoriSelect.value || null;
+    try{
+      await updateDoc(currentUserRef, payload);
+      msg.className = 'account-msg ok';
+      msg.textContent = 'Infos enregistrées !';
+    }catch(e){
+      msg.className = 'account-msg err';
+      msg.textContent = e.message;
+    }
   });
 }
 </script>
