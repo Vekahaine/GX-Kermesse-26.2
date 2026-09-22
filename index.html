@@ -397,6 +397,26 @@ nav .links a:hover{color:var(--yellow);}
 .archive-card a{color:var(--yellow);font-size:0.84rem;text-decoration:none;}
 .archive-card a:hover{text-decoration:underline;}
 
+/* ---------- Jours multiples (inscription) ---------- */
+.participate-days{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+.day-check{display:flex;align-items:center;gap:8px;font-size:0.86rem;color:var(--cream-dim);cursor:pointer;}
+.day-check input{width:16px;height:16px;}
+
+/* ---------- Création d'arène (admin) ---------- */
+.arena-games-picker{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0;}
+.arena-game-check{
+  display:flex;align-items:center;gap:6px;background:var(--night-2);border:1px solid rgba(247,241,225,0.12);
+  border-radius:999px;padding:7px 14px;font-size:0.82rem;color:var(--cream-dim);cursor:pointer;
+}
+.arena-game-check input{width:14px;height:14px;}
+.arena-day-block{
+  background:var(--night-2);border:1px solid rgba(247,241,225,0.1);border-radius:12px;
+  padding:16px;margin-bottom:14px;
+}
+.arena-slots{display:flex;flex-direction:column;gap:8px;margin:10px 0;}
+.arena-slot-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.arena-slot-row select{padding:10px 12px;border-radius:8px;border:2px solid rgba(247,241,225,0.15);font-family:'Space Grotesk';font-size:0.88rem;background:#fff;color:#1B1748;}
+
 /* ---------- LIVE ---------- */
 #live{background:var(--night);}
 .live-badge{
@@ -602,7 +622,9 @@ body.page-arenes #arenes{display:block;}
 body.page-arene #arene-gx-26-2{display:block;}
 #gx-community{display:none;}
 body.page-community #gx-community{display:block;}
-body.page-account .home-section, body.page-admin .home-section, body.page-arenes .home-section, body.page-arene .home-section, body.page-community .home-section{display:none;}
+#arena-dynamic{display:none;}
+body.page-arena-dynamic #arena-dynamic{display:block;}
+body.page-account .home-section, body.page-admin .home-section, body.page-arenes .home-section, body.page-arene .home-section, body.page-community .home-section, body.page-arena-dynamic .home-section{display:none;}
 nav .brand{text-decoration:none;cursor:pointer;transition:opacity .15s;}
 nav .brand:hover{opacity:0.82;}
 
@@ -882,6 +904,28 @@ nav .brand:hover{opacity:0.82;}
         <div class="account-msg" id="archive-add-msg"></div>
         <div id="admin-archives-list"></div>
       </div>
+
+      <div class="admin-results" id="admin-arenas-panel">
+        <h3>🏟️ Créer une arène</h3>
+        <div class="account-hint">Choisis les jeux, ajoute un ou plusieurs jours avec leurs créneaux, puis crée l'arène. Elle apparaîtra automatiquement sur la page "Arènes" et aura sa propre page.</div>
+        <div class="account-login">
+          <input type="text" id="arena-name" placeholder="Nom complet (ex. Kermesse GX 27.1)">
+          <input type="text" id="arena-short-name" placeholder="Nom court pour la carte (ex. Kermesse 2027 v1)">
+        </div>
+        <div class="account-login">
+          <input type="text" id="arena-slug" placeholder="Identifiant technique (ex. gx-27-1)">
+        </div>
+        <div class="arena-games-picker" id="arena-games-picker"></div>
+        <div class="arena-days-builder" id="arena-days-builder"></div>
+        <button class="btn btn-ghost" type="button" id="arena-add-day-btn">+ Ajouter un jour</button>
+        <button class="btn btn-primary" id="arena-create-btn">Créer l'arène</button>
+        <div class="account-msg" id="arena-create-msg"></div>
+      </div>
+
+      <div class="admin-results" id="admin-arenas-list-panel">
+        <h3>🗂️ Arènes créées</h3>
+        <div id="admin-arenas-list"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -915,14 +959,16 @@ nav .brand:hover{opacity:0.82;}
           </div>
         </div>
       </div>
+      <div id="dynamic-arenas-upcoming"></div>
     </div>
 
     <div class="arenas-subsection" id="arenes-historique">
       <h3 class="arenas-subtitle">Historique</h3>
-      <div class="history-empty">
+      <div class="history-empty" id="arenes-history-empty">
         <span class="history-emoji">🏛️</span>
         <p class="section-desc small">Aucune arène passée pour le moment — reviens juste après la première pour découvrir son classement final ici.</p>
       </div>
+      <div id="dynamic-arenas-archived"></div>
     </div>
   </div>
 </section>
@@ -984,6 +1030,10 @@ nav .brand:hover{opacity:0.82;}
     </div>
   </div>
 </section>
+</section>
+
+<section id="arena-dynamic">
+  <div class="wrap" id="arena-dynamic-content"></div>
 </section>
 
 <section id="gx-community">
@@ -1176,7 +1226,51 @@ function sanitizeEmail(email){
   return email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
 }
 function registrationId(email){
-  return KERMESSE_ID + '_' + sanitizeEmail(email);
+  return activeKermesseId + '_' + sanitizeEmail(email);
+}
+
+/* ---------- Arène active pour l'inscription (Round 15 : arènes multiples) ---------- */
+let activeKermesseId = KERMESSE_ID;
+let activeKermesseFullTitle = 'Kermesse GX 26.2';
+let activeKermesseShortName = 'GX 26.2';
+let activeKermesseDateLabel = 'samedi 3 octobre';
+let activeKermesseDays = [{ label: 'Samedi 3 octobre' }];
+let currentAuthEmail = null;
+
+function refreshActiveKermesseUI(){
+  if(participateStatusCard){
+    const h3 = participateStatusCard.querySelector('h3');
+    if(h3) h3.textContent = activeKermesseFullTitle;
+  }
+  if(currentAuthEmail){
+    subscribeCurrentReg(currentAuthEmail);
+  }
+}
+
+function resetActiveKermesseToDefault(){
+  activeKermesseId = KERMESSE_ID;
+  activeKermesseFullTitle = 'Kermesse GX 26.2';
+  activeKermesseShortName = 'GX 26.2';
+  activeKermesseDateLabel = 'samedi 3 octobre';
+  activeKermesseDays = [{ label: 'Samedi 3 octobre' }];
+  refreshActiveKermesseUI();
+}
+
+function setActiveKermesse(id, fullTitle, shortName, dateLabel, days){
+  activeKermesseId = id;
+  activeKermesseFullTitle = fullTitle;
+  activeKermesseShortName = shortName;
+  activeKermesseDateLabel = dateLabel;
+  activeKermesseDays = (days && days.length) ? days : [{ label: dateLabel }];
+  refreshActiveKermesseUI();
+}
+
+function subscribeCurrentReg(email){
+  if(currentRegUnsub){ currentRegUnsub(); currentRegUnsub = null; }
+  currentRegRef = doc(db, 'registrations', registrationId(email));
+  currentRegUnsub = onSnapshot(currentRegRef, (snap) => {
+    renderParticipateStatus(snap.exists() ? snap.data() : null);
+  });
 }
 
 const AVATAR_PRESETS = [
@@ -1245,6 +1339,7 @@ function pageForHash(hash){
   if(hash === '#administration') return 'admin';
   if(hash.indexOf('#arenes') === 0) return 'arenes';
   if(hash.indexOf('#arene-gx-26-2') === 0) return 'arene';
+  if(hash.indexOf('#arene-') === 0) return 'arena-dynamic';
   if(hash.indexOf('#gx-community') === 0) return 'community';
   return 'home';
 }
@@ -1253,7 +1348,15 @@ function showPage(page){
   document.body.classList.toggle('page-admin', page === 'admin');
   document.body.classList.toggle('page-arenes', page === 'arenes');
   document.body.classList.toggle('page-arene', page === 'arene');
+  document.body.classList.toggle('page-arena-dynamic', page === 'arena-dynamic');
   document.body.classList.toggle('page-community', page === 'community');
+}
+function handleHashRouting(hash){
+  const page = pageForHash(hash);
+  showPage(page);
+  if(page === 'arena-dynamic'){
+    renderDynamicArenaPage(hash.slice('#arene-'.length));
+  }
 }
 function goToAnchor(id){
   showPage('home');
@@ -1389,9 +1492,9 @@ if(navHomeLink){
   });
 }
 window.addEventListener('popstate', () => {
-  showPage(pageForHash(window.location.hash));
+  handleHashRouting(window.location.hash);
 });
-showPage(pageForHash(window.location.hash));
+handleHashRouting(window.location.hash);
 
 /* ---------- Mon compte : éléments DOM ---------- */
 const accountEmailInput = document.getElementById('account-email');
@@ -1641,16 +1744,18 @@ avatarUpload.addEventListener('change', async () => {
 /* ---------- Participation à la kermesse ---------- */
 function renderParticipateStatus(reg){
   if(!reg){
-    participateStatusContent.innerHTML = `
-      <p class="section-desc small">Confirme ta participation à la kermesse du samedi 3 octobre.</p>
-      <button class="btn btn-primary" id="participate-confirm-btn">Je confirme ma participation</button>
-    `;
+    if(activeKermesseDays.length > 1){
+      const dayChecks = activeKermesseDays.map(d => '<label class="day-check"><input type="checkbox" class="participate-day-cb" value="' + d.label + '" checked> ' + d.label + '</label>').join('');
+      participateStatusContent.innerHTML = '<p class="section-desc small">Choisis les jours où tu seras présent·e, puis confirme ta participation.</p><div class="participate-days">' + dayChecks + '</div><button class="btn btn-primary" id="participate-confirm-btn">Je confirme ma participation</button>';
+    } else {
+      participateStatusContent.innerHTML = '<p class="section-desc small">Confirme ta participation à la kermesse du ' + activeKermesseDateLabel + '.</p><button class="btn btn-primary" id="participate-confirm-btn">Je confirme ma participation</button>';
+    }
     const btn = document.getElementById('participate-confirm-btn');
     if(btn) btn.addEventListener('click', confirmParticipation);
   } else if(!reg.approved){
-    participateStatusContent.innerHTML = `<div class="participate-state pending">⏳ Ta demande de participation est en attente de validation par l'admin.</div>`;
+    participateStatusContent.innerHTML = '<div class="participate-state pending">⏳ Ta demande de participation est en attente de validation par l\'admin.</div>';
   } else {
-    participateStatusContent.innerHTML = `<div class="participate-state approved">✅ Tu participes à la kermesse GX 26.2 ! Rendez-vous dans le classement.</div>`;
+    participateStatusContent.innerHTML = '<div class="participate-state approved">✅ Tu participes à la kermesse ' + activeKermesseShortName + ' ! Rendez-vous dans le classement.</div>';
   }
 }
 
@@ -1664,7 +1769,11 @@ async function confirmParticipation(){
     const email = auth.currentUser.email.toLowerCase();
     const pseudo = lastKnownUserData ? lastKnownUserData.pseudo : '';
     const avatar = lastKnownUserData ? (lastKnownUserData.avatar || null) : null;
-    const jours = 'Samedi 3 octobre';
+    let jours = activeKermesseDays.length ? activeKermesseDays[0].label : activeKermesseDateLabel;
+    if(activeKermesseDays.length > 1){
+      const checked = Array.from(document.querySelectorAll('.participate-day-cb:checked')).map(cb => cb.value);
+      jours = checked.length ? checked : activeKermesseDays.map(d => d.label);
+    }
     await setDoc(currentRegRef, {
       email,
       pseudo,
@@ -1672,17 +1781,18 @@ async function confirmParticipation(){
       jours,
       approved: false,
       points: 0,
-      kermesseId: KERMESSE_ID,
+      kermesseId: activeKermesseId,
       createdAt: serverTimestamp()
     });
-    fetch(`https://formsubmit.co/ajax/${ORGANIZER_EMAIL}`, {
+    const joursLabel = Array.isArray(jours) ? jours.join(', ') : jours;
+    fetch('https://formsubmit.co/ajax/' + ORGANIZER_EMAIL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
-        _subject: `Nouvelle demande de participation — Kermesse GX 26.2 — ${pseudo}`,
+        _subject: 'Nouvelle demande de participation — ' + activeKermesseFullTitle + ' — ' + pseudo,
         Pseudo: pseudo,
         Email: email,
-        'Jour(s) de présence': jours
+        'Jour(s) de présence': joursLabel
       })
     }).catch(() => {});
   }catch(err){
@@ -1702,7 +1812,7 @@ function renderAdminList(items){
   items.forEach(p => {
     const row = document.createElement('div');
     row.className = 'admin-item';
-    row.innerHTML = `<div class="admin-item-info">${p.pseudo}<span>${p.email} — ${p.jours}</span></div>
+    row.innerHTML = `<div class="admin-item-info">${p.pseudo}<span>${p.email} — ${Array.isArray(p.jours) ? p.jours.join(', ') : p.jours} — ${p.kermesseId}</span></div>
       <div class="admin-actions">
         <button class="admin-btn admin-approve">Approuver</button>
         <button class="admin-btn admin-refuse">Refuser</button>
@@ -1733,12 +1843,14 @@ onAuthStateChanged(auth, (user) => {
     setAdminUI(false);
     currentUserRef = null;
     currentRegRef = null;
+    currentAuthEmail = null;
     return;
   }
 
   const email = user.email.toLowerCase();
+  currentAuthEmail = email;
   currentUserRef = doc(db, 'users', sanitizeEmail(email));
-  currentRegRef = doc(db, 'registrations', registrationId(email));
+  subscribeCurrentReg(email);
 
   currentUserUnsub = onSnapshot(currentUserRef, (snap) => {
     if(!snap.exists()){
@@ -1758,13 +1870,9 @@ onAuthStateChanged(auth, (user) => {
     renderGallery(data.avatar);
   });
 
-  currentRegUnsub = onSnapshot(currentRegRef, (snap) => {
-    renderParticipateStatus(snap.exists() ? snap.data() : null);
-  });
-
   if(email === ADMIN_EMAIL){
     setAdminUI(true);
-    const qPending = query(collection(db, 'registrations'), where('kermesseId', '==', KERMESSE_ID), where('approved', '==', false));
+    const qPending = query(collection(db, 'registrations'), where('approved', '==', false));
     adminPendingUnsub = onSnapshot(qPending, (snap) => {
       const items = [];
       snap.forEach(d => items.push({ id: d.id, ...d.data() }));
@@ -2119,6 +2227,373 @@ if(archiveAddBtn){
       msg.textContent = e.message;
       msg.className = 'account-msg err';
     }
+  });
+}
+
+/* ---------- Création d'arène par l'admin (Round 15) ---------- */
+function stripIcon(icon){ return (icon || '').replace(/<[^>]*>/g, ''); }
+
+const arenaGamesPickerEl = document.getElementById('arena-games-picker');
+if(arenaGamesPickerEl){
+  (window.__gxGames || []).forEach(g => {
+    const label = document.createElement('label');
+    label.className = 'arena-game-check';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.value = g.slug;
+    cb.className = 'arena-game-cb';
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(' ' + stripIcon(g.icon) + ' ' + g.name));
+    arenaGamesPickerEl.appendChild(label);
+  });
+}
+
+function addArenaSlotRow(slotsContainer){
+  const row = document.createElement('div');
+  row.className = 'arena-slot-row';
+  const timeInput = document.createElement('input');
+  timeInput.type = 'text';
+  timeInput.className = 'arena-slot-time';
+  timeInput.placeholder = 'Horaire (ex. 20h30 – 21h00)';
+  const sel = document.createElement('select');
+  sel.className = 'arena-slot-game';
+  (window.__gxGames || []).forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.slug;
+    opt.textContent = g.name;
+    sel.appendChild(opt);
+  });
+  const rm = document.createElement('button');
+  rm.type = 'button';
+  rm.className = 'admin-btn admin-refuse';
+  rm.textContent = '×';
+  rm.addEventListener('click', () => row.remove());
+  row.appendChild(timeInput);
+  row.appendChild(sel);
+  row.appendChild(rm);
+  slotsContainer.appendChild(row);
+}
+
+function addArenaDayBlock(){
+  const builder = document.getElementById('arena-days-builder');
+  if(!builder) return;
+  const block = document.createElement('div');
+  block.className = 'arena-day-block';
+  const topRow = document.createElement('div');
+  topRow.className = 'account-login';
+  const dateInput = document.createElement('input');
+  dateInput.type = 'date';
+  dateInput.className = 'arena-day-date';
+  const labelInput = document.createElement('input');
+  labelInput.type = 'text';
+  labelInput.className = 'arena-day-label';
+  labelInput.placeholder = 'Libellé (ex. Samedi 5 mars)';
+  const removeDayBtn = document.createElement('button');
+  removeDayBtn.type = 'button';
+  removeDayBtn.className = 'admin-btn admin-refuse';
+  removeDayBtn.textContent = 'Supprimer ce jour';
+  removeDayBtn.addEventListener('click', () => block.remove());
+  topRow.appendChild(dateInput);
+  topRow.appendChild(labelInput);
+  topRow.appendChild(removeDayBtn);
+  const slotsContainer = document.createElement('div');
+  slotsContainer.className = 'arena-slots';
+  const addSlotBtn = document.createElement('button');
+  addSlotBtn.type = 'button';
+  addSlotBtn.className = 'btn btn-ghost';
+  addSlotBtn.textContent = '+ Ajouter un créneau';
+  addSlotBtn.addEventListener('click', () => addArenaSlotRow(slotsContainer));
+  block.appendChild(topRow);
+  block.appendChild(slotsContainer);
+  block.appendChild(addSlotBtn);
+  builder.appendChild(block);
+  addArenaSlotRow(slotsContainer);
+}
+
+const arenaAddDayBtn = document.getElementById('arena-add-day-btn');
+if(arenaAddDayBtn){ arenaAddDayBtn.addEventListener('click', addArenaDayBlock); }
+
+const arenaNameInput = document.getElementById('arena-name');
+const arenaSlugInput = document.getElementById('arena-slug');
+if(arenaNameInput && arenaSlugInput){
+  arenaNameInput.addEventListener('input', () => {
+    if(!arenaSlugInput.dataset.touched){
+      arenaSlugInput.value = arenaNameInput.value.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+  });
+  arenaSlugInput.addEventListener('input', () => { arenaSlugInput.dataset.touched = '1'; });
+}
+const arenaCreateBtn = document.getElementById('arena-create-btn');
+if(arenaCreateBtn){
+  arenaCreateBtn.addEventListener('click', async () => {
+    const msg = document.getElementById('arena-create-msg');
+    msg.className = 'account-msg';
+    msg.textContent = '';
+    const name = arenaNameInput.value.trim();
+    const shortNameInput = document.getElementById('arena-short-name');
+    const shortName = shortNameInput.value.trim();
+    const slug = arenaSlugInput.value.trim();
+    const gamesChecked = Array.from(document.querySelectorAll('.arena-game-cb:checked')).map(cb => cb.value);
+    const dayBlocks = Array.from(document.querySelectorAll('.arena-day-block'));
+    if(!name || !slug){
+      msg.className = 'account-msg err';
+      msg.textContent = 'Le nom et l\'identifiant sont obligatoires.';
+      return;
+    }
+    if(gamesChecked.length === 0){
+      msg.className = 'account-msg err';
+      msg.textContent = 'Choisis au moins un jeu.';
+      return;
+    }
+    if(dayBlocks.length === 0){
+      msg.className = 'account-msg err';
+      msg.textContent = 'Ajoute au moins un jour.';
+      return;
+    }
+    const days = dayBlocks.map(block => {
+      const date = block.querySelector('.arena-day-date').value;
+      const label = block.querySelector('.arena-day-label').value.trim();
+      const slots = Array.from(block.querySelectorAll('.arena-slot-row')).map(row => ({
+        time: row.querySelector('.arena-slot-time').value.trim(),
+        gameSlug: row.querySelector('.arena-slot-game').value
+      })).filter(s => s.time);
+      return { date: date || null, label: label || date || 'Jour', slots: slots };
+    });
+    try{
+      await setDoc(doc(db, 'arenas', slug), {
+        kermesseId: slug,
+        name: name,
+        shortName: shortName || name,
+        status: 'upcoming',
+        games: gamesChecked,
+        days: days,
+        createdAt: serverTimestamp(),
+        archivedAt: null
+      });
+      msg.className = 'account-msg ok';
+      msg.textContent = 'Arène créée !';
+      arenaNameInput.value = ''; shortNameInput.value = ''; arenaSlugInput.value = ''; arenaSlugInput.dataset.touched = '';
+      document.querySelectorAll('.arena-game-cb').forEach(cb => cb.checked = false);
+      document.getElementById('arena-days-builder').innerHTML = '';
+    }catch(e){
+      msg.className = 'account-msg err';
+      msg.textContent = e.message;
+    }
+  });
+}
+
+const adminArenasListEl = document.getElementById('admin-arenas-list');
+if(adminArenasListEl){
+  onSnapshot(collection(db, 'arenas'), (snap) => {
+    const items = [];
+    snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+    if(items.length === 0){
+      adminArenasListEl.innerHTML = '<div class="admin-empty">Aucune arène créée pour le moment.</div>';
+      return;
+    }
+    adminArenasListEl.innerHTML = '';
+    items.forEach(a => {
+      const row = document.createElement('div');
+      row.className = 'admin-item';
+      const statusLabel = a.status === 'archived' ? 'Archivée' : 'À venir';
+      row.innerHTML = '<div class="admin-item-info">' + a.name + '<span>' + a.kermesseId + ' — ' + statusLabel + '</span></div><div class="admin-actions"></div>';
+      const actions = row.querySelector('.admin-actions');
+      if(a.status !== 'archived'){
+        const archiveBtn = document.createElement('button');
+        archiveBtn.className = 'admin-btn admin-approve';
+        archiveBtn.textContent = 'Archiver';
+        archiveBtn.addEventListener('click', async () => {
+          await updateDoc(doc(db, 'arenas', a.id), { status: 'archived', archivedAt: serverTimestamp() });
+        });
+        actions.appendChild(archiveBtn);
+      }
+      const delBtn = document.createElement('button');
+      delBtn.className = 'admin-btn admin-refuse';
+      delBtn.textContent = 'Supprimer';
+      delBtn.addEventListener('click', async () => {
+        if(window.confirm('Supprimer définitivement l\'arène "' + a.name + '" ?')){
+          await deleteDoc(doc(db, 'arenas', a.id));
+        }
+      });
+      actions.appendChild(delBtn);
+      adminArenasListEl.appendChild(row);
+    });
+  });
+}
+/* ---------- Page Arènes : liste dynamique des arènes créées ---------- */
+let arenasCache = {};
+
+function renderArenaCard(a){
+  const gamesChips = (a.games || []).map(slug => {
+    const g = (window.__gxGames || []).find(x => x.slug === slug);
+    return g ? ('<span>' + stripIcon(g.icon) + ' ' + g.name + '</span>') : '';
+  }).join('');
+  const daysLabel = (a.days || []).map(d => d.label).join(' + ');
+  const firstDay = (a.days && a.days[0]) || {};
+  let dayNum = '–', monthLabel = '';
+  if(firstDay.date){
+    const dt = new Date(firstDay.date + 'T00:00:00');
+    if(!isNaN(dt.getTime())){
+      dayNum = String(dt.getDate()).padStart(2, '0');
+      monthLabel = dt.toLocaleDateString('fr-FR', { month: 'short' }).toUpperCase().replace('.', '');
+    }
+  }
+  const actionsHtml = a.status === 'archived'
+    ? ('<a href="#arene-' + a.kermesseId + '" class="btn btn-ghost">Voir le classement final</a>')
+    : ('<a href="#compte" class="btn btn-primary arena-register-link" data-kermesse="' + a.kermesseId + '">Je participe</a><a href="#arene-' + a.kermesseId + '" class="btn btn-ghost">Voir l\'arène</a>');
+  return '<div class="arena-card"><div class="arena-card-date"><span class="arena-card-day">' + dayNum + '</span><span class="arena-card-month">' + monthLabel + '</span></div><div class="arena-card-body"><h3>' + a.shortName + '</h3><p class="section-desc small">' + daysLabel + '</p><div class="arena-card-games">' + gamesChips + '</div><div class="arena-card-actions">' + actionsHtml + '</div></div></div>';
+}
+
+function wireArenaRegisterLinks(container){
+  container.querySelectorAll('.arena-register-link').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const kid = a.dataset.kermesse;
+      const arena = arenasCache[kid];
+      if(arena){
+        setActiveKermesse(arena.kermesseId, arena.name, arena.shortName || arena.name, (arena.days[0] || {}).label || arena.name, arena.days || []);
+      }
+      history.pushState(null, '', '#compte');
+      goToAccount();
+    });
+  });
+}
+
+const dynamicUpcomingEl = document.getElementById('dynamic-arenas-upcoming');
+const dynamicArchivedEl = document.getElementById('dynamic-arenas-archived');
+const arenesHistoryEmptyEl = document.getElementById('arenes-history-empty');
+if(dynamicUpcomingEl || dynamicArchivedEl){
+  onSnapshot(collection(db, 'arenas'), (snap) => {
+    arenasCache = {};
+    const upcoming = [];
+    const archived = [];
+    snap.forEach(d => {
+      const a = { id: d.id, ...d.data() };
+      arenasCache[a.kermesseId] = a;
+      if(a.status === 'archived'){ archived.push(a); } else { upcoming.push(a); }
+    });
+    if(dynamicUpcomingEl){
+      dynamicUpcomingEl.innerHTML = upcoming.map(renderArenaCard).join('');
+      wireArenaRegisterLinks(dynamicUpcomingEl);
+    }
+    if(dynamicArchivedEl){
+      if(archived.length === 0){
+        dynamicArchivedEl.innerHTML = '';
+        if(arenesHistoryEmptyEl) arenesHistoryEmptyEl.style.display = '';
+      } else {
+        if(arenesHistoryEmptyEl) arenesHistoryEmptyEl.style.display = 'none';
+        dynamicArchivedEl.innerHTML = archived.map(renderArenaCard).join('');
+      }
+    }
+  });
+}
+/* ---------- Page générique d'une arène dynamique (Round 15) ---------- */
+let dynamicArenaUnsubs = [];
+function clearDynamicArenaSubs(){
+  dynamicArenaUnsubs.forEach(u => { try{ u(); }catch(e){} });
+  dynamicArenaUnsubs = [];
+}
+
+async function renderDynamicArenaPage(kermesseId){
+  const container = document.getElementById('arena-dynamic-content');
+  if(!container) return;
+  clearDynamicArenaSubs();
+  container.innerHTML = '<p class="section-desc">Chargement de l\'arène…</p>';
+  let snap;
+  try{
+    snap = await getDoc(doc(db, 'arenas', kermesseId));
+  }catch(e){
+    container.innerHTML = '<p class="section-desc">Impossible de charger cette arène.</p>';
+    return;
+  }
+  if(!snap.exists()){
+    container.innerHTML = '<p class="section-desc">Cette arène n\'existe pas ou a été supprimée.</p>';
+    return;
+  }
+  const arena = snap.data();
+  const isArchived = arena.status === 'archived';
+  const gamesList = (arena.games || []).map(slug => (window.__gxGames || []).find(g => g.slug === slug)).filter(Boolean);
+  const gamesChipsHtml = gamesList.map(g => '<span>' + stripIcon(g.icon) + ' ' + g.name + '</span>').join('');
+
+  const ctaHtml = isArchived
+    ? '<div class="participate-state approved">🏁 Cette arène est terminée. Retrouve le classement final ci-dessous.</div>'
+    : '<div class="arena-card-actions"><a href="#compte" class="btn btn-primary" id="dynamic-arena-register-btn">Je m\'inscris</a></div>';
+
+  const programmeHtml = (arena.days || []).map(d => {
+    const slotsHtml = (d.slots || []).map(s => {
+      const g = (window.__gxGames || []).find(x => x.slug === s.gameSlug);
+      const icon = g ? stripIcon(g.icon) : '';
+      const name = g ? g.name : s.gameSlug;
+      return '<div class="tl-item"><div class="tl-time">' + s.time + '</div><div class="tl-name"><span class="tl-icon">' + icon + '</span><span>' + name + '</span></div></div>';
+    }).join('');
+    return '<div class="arenas-subsection"><h3 class="arenas-subtitle">' + d.label + '</h3><div class="timeline active">' + (slotsHtml || '<p class="section-desc small">Planning à venir.</p>') + '</div></div>';
+  }).join('');
+
+  const baremeRows = gamesList.filter(g => POINTS_BAREME[g.slug]).map(g => {
+    const pts = POINTS_BAREME[g.slug];
+    const posLabels = ['1er','2e','3e','4e','5e'];
+    const line = pts.map((p,i) => (posLabels[i] || ((i+1) + 'e')) + ': ' + p).join(' · ');
+    return '<li><strong>' + g.name + '</strong> — ' + line + '</li>';
+  }).join('');
+
+  container.innerHTML =
+    '<span class="eyebrow-tag">GALACTIX ARENA' + (isArchived ? ' · Archivée' : '') + '</span>' +
+    '<h2 class="section-title">' + arena.name + '</h2>' +
+    '<p class="section-desc">' + (arena.days || []).map(d => d.label).join(' + ') + '</p>' +
+    '<div class="arena-card-games">' + gamesChipsHtml + '</div>' +
+    ctaHtml +
+    '<div class="community-section"><h3 class="arenas-subtitle">Programme</h3>' + programmeHtml + '</div>' +
+    '<div class="community-section"><h3 class="arenas-subtitle">Barème de points</h3><ul class="bareme-list">' + (baremeRows || '<li>Barème à venir.</li>') + '</ul></div>' +
+    '<div class="community-section"><h3 class="arenas-subtitle">Classement</h3><div class="rank-grid" id="dynamic-rank-grid"></div></div>' +
+    '<div class="community-section"><h3 class="arenas-subtitle">Participants</h3><div class="participants-list" id="dynamic-participants-list"></div></div>';
+
+  const registerBtn = document.getElementById('dynamic-arena-register-btn');
+  if(registerBtn){
+    registerBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      setActiveKermesse(arena.kermesseId, arena.name, arena.shortName || arena.name, (arena.days[0] || {}).label || arena.name, arena.days || []);
+      history.pushState(null, '', '#compte');
+      goToAccount();
+    });
+  }
+
+  const rankGridEl = document.getElementById('dynamic-rank-grid');
+  const participantsListEl2 = document.getElementById('dynamic-participants-list');
+  if(rankGridEl){
+    rankGridEl.innerHTML = '<div class="rank-card general"><span class="lock">🏆</span><h3>Classement général</h3><div class="rank-status" id="dynamic-rank-general-body">Chargement…</div></div>' +
+      gamesList.map(g => '<div class="rank-card"><span class="lock">🔒</span><h3>' + g.name + '</h3><div class="rank-status" id="dynamic-rank-body-' + g.slug + '">Bientôt disponible</div></div>').join('');
+  }
+
+  const uReg = onSnapshot(query(collection(db, 'registrations'), where('kermesseId', '==', kermesseId), where('approved', '==', true)), (rsnap) => {
+    const list = [];
+    rsnap.forEach(d => list.push(d.data()));
+    list.sort((a,b) => (b.points || 0) - (a.points || 0));
+    if(participantsListEl2){
+      participantsListEl2.innerHTML = list.length === 0
+        ? '<div class="admin-empty">Personne pour l\'instant — sois le premier·ère à t\'inscrire !</div>'
+        : list.map(p => '<div class="participant-chip"><span class="chip-avatar" style="background:' + avatarBg(p.avatar) + '">' + avatarInnerHTML(p.avatar) + '</span><span>' + p.pseudo + '</span><span class="pts">' + (p.points || 0) + ' pt</span></div>').join('');
+    }
+    const genEl = document.getElementById('dynamic-rank-general-body');
+    if(genEl){
+      genEl.innerHTML = list.length === 0 ? 'Barème de points à venir' : ('<ol class="rank-list">' + list.slice(0,10).map(p => '<li>' + p.pseudo + ' <span class="pts">' + (p.points || 0) + ' pt' + (p.points > 1 ? 's' : '') + '</span></li>').join('') + '</ol>');
+    }
+  });
+  dynamicArenaUnsubs.push(uReg);
+
+  gamesList.forEach(g => {
+    const uRes = onSnapshot(doc(db, 'results', kermesseId + '_' + g.slug), (rsnap) => {
+      const body = document.getElementById('dynamic-rank-body-' + g.slug);
+      if(!body) return;
+      if(!rsnap.exists() || !rsnap.data().ranking || rsnap.data().ranking.length === 0){
+        body.innerHTML = 'Bientôt disponible';
+        return;
+      }
+      const sorted = rsnap.data().ranking.slice().sort((a,b) => a.position - b.position);
+      body.innerHTML = '<ol class="rank-list">' + sorted.map(r => '<li>' + r.pseudo + ' <span class="pts">' + r.points + ' pt' + (r.points > 1 ? 's' : '') + '</span></li>').join('') + '</ol>';
+    });
+    dynamicArenaUnsubs.push(uRes);
   });
 }
 </script>
