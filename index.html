@@ -810,18 +810,18 @@ nav .brand:hover{opacity:0.82;}
     <p class="arena-sub">Quiz, courses, sabotage, exploration : chaque kermesse GALACTIX est une nouvelle arène où plusieurs stands s'affrontent, jeu par jeu, pour un seul classement.</p>
     <div class="arena-games-ring">
       <div class="arena-games-row">
-        <span class="arena-chip">🧠 Quizz</span>
-        <span class="arena-chip">🌍 GeoGuessr</span>
         <span class="arena-chip">🥊 Pummel Party</span>
         <span class="arena-chip">💣 Worms WMD</span>
-        <span class="arena-chip">🦎 Mecha Chameleon</span>
+        <span class="arena-chip">🏃 SpeedRunners 2</span>
+        <span class="arena-chip">🏎️ TrackMania</span>
+        <span class="arena-chip">🫘 Fall Guys</span>
       </div>
       <div class="arena-games-row">
-        <span class="arena-chip">🏃 SpeedRunners 2</span>
-        <span class="arena-chip">📚 WikiRace</span>
-        <span class="arena-chip">🏎️ Trackmania</span>
-        <span class="arena-chip">🫘 Fall Guys</span>
+        <span class="arena-chip">🧠 Quizz</span>
+        <span class="arena-chip">🌍 GeoGuessr</span>
         <span class="arena-chip">🐍 Curve Fever</span>
+        <span class="arena-chip">🦎 Mecha Chameleon</span>
+        <span class="arena-chip">📚 WikiRace</span>
       </div>
     </div>
     <div class="arena-hero-actions">
@@ -1289,16 +1289,16 @@ setInterval(tickCountdown, 1000);
 
 /* ---------- Stands (jeux) ---------- */
 const games = [
-  {name:'Quizz', slug:'quizz', icon:'🧠'},
-  {name:'GeoGuessr', slug:'geoguessr', icon:'🌍'},
   {name:'Pummel Party', slug:'pummel-party', icon:'🥊'},
   {name:'Worms WMD', slug:'worms-wmd', icon:'💣'},
-  {name:'Mecha Chameleon', slug:'mecha-chameleon', icon:'🦎<span class="icon-sup">🖌️</span>'},
   {name:'SpeedRunners 2', slug:'speedrunners-2', icon:'🏃'},
-  {name:'WikiRace', slug:'wikirace', icon:'📚'},
-  {name:'Trackmania', slug:'trackmania', icon:'🏎️'},
+  {name:'TrackMania', slug:'trackmania', icon:'🏎️'},
   {name:'Fall Guys', slug:'fall-guys', icon:'🫘'},
-  {name:'Curve Fever', slug:'curve-fever', icon:'🐍'}
+  {name:'Quizz', slug:'quizz', icon:'🧠'},
+  {name:'GeoGuessr', slug:'geoguessr', icon:'🌍'},
+  {name:'Curve Fever', slug:'curve-fever', icon:'🐍'},
+  {name:'Mecha Chameleon', slug:'mecha-chameleon', icon:'🦎<span class="icon-sup">🖌️</span>'},
+  {name:'WikiRace', slug:'wikirace', icon:'📚'}
 ];
 window.__gxGames = games;
 const standsGrid = document.getElementById('stands-grid');
@@ -3512,7 +3512,7 @@ async function bootstrapGx262Arena(){
 async function bootstrapNewGamesCatalog(){
   try{
     const extra = [
-      { slug: 'trackmania', name: 'Trackmania', icon: '🏎️' },
+      { slug: 'trackmania', name: 'TrackMania', icon: '🏎️' },
       { slug: 'fall-guys', name: 'Fall Guys', icon: '🫘' },
       { slug: 'curve-fever', name: 'Curve Fever', icon: '🐍' }
     ];
@@ -3524,6 +3524,8 @@ async function bootstrapNewGamesCatalog(){
           name: g.name, slug: g.slug, icon: g.icon,
           createdAt: serverTimestamp(), createdBy: ADMIN_EMAIL
         });
+      } else if(snap.data().name !== g.name){
+        await updateDoc(ref, { name: g.name });
       }
     }
   }catch(err){ console.warn('bootstrapNewGamesCatalog', err); }
