@@ -617,6 +617,14 @@ footer .brand{justify-content:center;margin-bottom:10px;}
 .admin-live{background:var(--red);color:#fff;}
 .admin-empty{font-size:0.85rem;color:var(--cream-dim);}
 
+/* ---------- STATUT D'ARENE (Round 24) ---------- */
+.status-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Fredoka';font-weight:600;font-size:0.78rem;padding:5px 14px 5px 10px;border-radius:999px;margin-bottom:14px;}
+.status-badge .status-dot{width:8px;height:8px;border-radius:50%;background:currentColor;}
+.status-badge.status-upcoming{background:var(--teal);color:#0c2b23;}
+.status-badge.status-live{background:var(--red);color:#fff;}
+.status-badge.status-live .status-dot{animation:live-pulse 1.4s ease-in-out infinite;}
+.status-badge.status-archived{background:var(--red);color:#fff;opacity:0.8;}
+
 /* ---------- NOTIFICATIONS ---------- */
 .nav-notif{position:relative;display:inline-flex;align-items:center;}
 .nav-notif-btn{background:none;border:none;cursor:pointer;font-size:1.2rem;line-height:1;color:var(--cream-dim);padding:4px;position:relative;transition:color .2s;}
@@ -1088,7 +1096,7 @@ nav .brand:hover{opacity:0.82;}
 <section id="arene-gx-26-2">
   <div class="wrap">
     <span class="eyebrow-tag">GALACTIX ARENA</span>
-    <span class="live-badge" id="gx262-live-badge" hidden><span class="live-dot"></span>En direct</span>
+    <span id="gx262-status-badge"></span>
     <h2 class="section-title">Kermesse GX 26.2</h2>
     <p class="section-desc">Samedi 3 octobre 2026, à partir de 20h30 — inscris-toi pour rejoindre l'arène, puis découvre le programme, les jeux, le barème de points, les participants et les résultats en direct.</p>
     <div class="arena-card-games">
@@ -2204,11 +2212,16 @@ function renderStaticRankGrid(gamesList){
   if(!rankGridEl) return;
   rankGridEl.innerHTML = gamesList.map(g => '<div class="rank-card" id="rank-card-' + g.slug + '"><span class="lock">🔒</span><h3>' + g.name + '</h3><div class="rank-status" id="rank-body-' + g.slug + '">Bientôt disponible</div></div>').join('');
 }
+function arenaStatusBadgeHtml(status){
+  if(status === 'archived') return '<span class="status-badge status-archived"><span class="status-dot"></span>Archivée</span>';
+  if(status === 'live') return '<span class="status-badge status-live"><span class="status-dot"></span>En direct</span>';
+  return '<span class="status-badge status-upcoming"><span class="status-dot"></span>À venir</span>';
+}
 function applyGx262ArenaEverywhere(a){
   latestGx262ArenaData = a;
   if(!a) return;
-  const gx262LiveBadgeEl = document.getElementById('gx262-live-badge');
-  if(gx262LiveBadgeEl) gx262LiveBadgeEl.hidden = a.status !== 'live';
+  const gx262StatusBadgeEl = document.getElementById('gx262-status-badge');
+  if(gx262StatusBadgeEl) gx262StatusBadgeEl.innerHTML = arenaStatusBadgeHtml(a.status);
   const upcomingCardLiveBadgeEl = document.getElementById('upcoming-card-live-badge');
   if(upcomingCardLiveBadgeEl) upcomingCardLiveBadgeEl.hidden = a.status !== 'live';
   if(Array.isArray(a.games)){
@@ -2270,7 +2283,7 @@ function applyGx262ArenaEverywhere(a){
         const icon = g ? stripIcon(g.icon) : '';
         return '<div class="tl-item"><div class="tl-time">' + s.time + '</div><div class="tl-name"><span class="tl-icon">' + icon + '</span><span>' + name + '</span></div></div>';
       }).join('');
-      const heading = a.days.length > 1 ? ('<h4 class="arenas-subtitle">' + (d.label || ('Jour ' + (i+1))) + '</h4>') : '';
+      const heading = '<h4 class="arenas-subtitle">' + (d.label || ('Jour ' + (i+1))) + '</h4>';
       return heading + '<div class="timeline active">' + items + '</div>';
     }).join('');
   }
@@ -3100,6 +3113,15 @@ if(adminArenasListEl){
         });
         actions.appendChild(liveBtn);
       }
+      if(a.status === 'live'){
+        const revertBtn = document.createElement('button');
+        revertBtn.className = 'admin-btn';
+        revertBtn.textContent = 'Repasser à venir';
+        revertBtn.addEventListener('click', async () => {
+          await updateDoc(doc(db, 'arenas', a.id), { status: 'upcoming', liveAt: null });
+        });
+        actions.appendChild(revertBtn);
+      }
       if(a.status !== 'archived'){
         const archiveBtn = document.createElement('button');
         archiveBtn.className = 'admin-btn admin-approve';
@@ -3244,8 +3266,8 @@ async function renderDynamicArenaPage(kermesseId){
     }).join('');
 
     container.innerHTML =
-      '<span class="eyebrow-tag">GALACTIX ARENA' + (isArchived ? ' · Archivée' : '') + '</span>' +
-      (isLive ? '<span class="live-badge"><span class="live-dot"></span>En direct</span>' : '') +
+      '<span class="eyebrow-tag">GALACTIX ARENA</span>' +
+      arenaStatusBadgeHtml(arena.status) +
       '<h2 class="section-title">' + arena.name + '</h2>' +
       '<p class="section-desc">' + (arena.days || []).map(d => d.label).join(' + ') + '</p>' +
       '<div class="arena-card-games">' + gamesChipsHtml + '</div>' +
