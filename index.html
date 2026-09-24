@@ -106,24 +106,19 @@ nav .links a:hover{color:var(--yellow);}
 .arena-title{font-size:clamp(1.9rem,5vw,3.1rem);color:var(--cream);line-height:1.1;text-wrap:balance;}
 .arena-title em{color:var(--yellow);font-style:normal;}
 .arena-sub{max-width:600px;margin:16px auto 0;color:var(--cream-dim);font-size:1.02rem;line-height:1.55;}
-.arena-games-ring{display:grid;grid-template-columns:repeat(5,auto);gap:10px 12px;justify-content:center;margin:30px auto 0;max-width:680px;}
-@media(max-width:640px){.arena-games-ring{grid-template-columns:repeat(2,auto);}}
+.arena-games-ring{display:flex;flex-direction:column;align-items:center;gap:10px;margin:30px auto 0;max-width:760px;}
+.arena-games-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
 .arena-chip{
   display:inline-flex;align-items:center;gap:6px;
   background:rgba(247,241,225,0.06);border:1px solid rgba(247,241,225,0.18);
   border-radius:999px;padding:8px 16px;font-size:0.85rem;color:var(--cream);
   font-family:'Space Grotesk';
 }
-.arena-chip:nth-child(1){border-color:rgba(244,196,48,0.45);}
-.arena-chip:nth-child(2){border-color:rgba(47,191,159,0.45);}
-.arena-chip:nth-child(3){border-color:rgba(232,72,59,0.45);}
-.arena-chip:nth-child(4){border-color:rgba(139,111,242,0.45);}
-.arena-chip:nth-child(5){border-color:rgba(244,196,48,0.45);}
-.arena-chip:nth-child(6){border-color:rgba(47,191,159,0.45);}
-.arena-chip:nth-child(7){border-color:rgba(232,72,59,0.45);}
-.arena-chip:nth-child(8){border-color:rgba(139,111,242,0.45);}
-.arena-chip:nth-child(9){border-color:rgba(244,196,48,0.45);}
-.arena-chip:nth-child(10){border-color:rgba(47,191,159,0.45);}
+.arena-games-row .arena-chip:nth-child(1){border-color:rgba(244,196,48,0.45);}
+.arena-games-row .arena-chip:nth-child(2){border-color:rgba(47,191,159,0.45);}
+.arena-games-row .arena-chip:nth-child(3){border-color:rgba(232,72,59,0.45);}
+.arena-games-row .arena-chip:nth-child(4){border-color:rgba(139,111,242,0.45);}
+.arena-games-row .arena-chip:nth-child(5){border-color:rgba(244,196,48,0.45);}
 .arena-hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:32px;}
 @media(max-width:600px){.arena-hero-content{padding:44px 20px 36px;}}
 
@@ -783,16 +778,20 @@ nav .brand:hover{opacity:0.82;}
     <h1 class="arena-title">L'ARÈNE DE TOUS LES <em>AFFRONTEMENTS</em></h1>
     <p class="arena-sub">Quiz, courses, sabotage, exploration : chaque kermesse GALACTIX est une nouvelle arène où plusieurs stands s'affrontent, jeu par jeu, pour un seul classement.</p>
     <div class="arena-games-ring">
-      <span class="arena-chip">🧠 Quizz</span>
-      <span class="arena-chip">🌍 GeoGuessr</span>
-      <span class="arena-chip">🥊 Pummel Party</span>
-      <span class="arena-chip">💣 Worms WMD</span>
-      <span class="arena-chip">🦎 Mecha Chameleon</span>
-      <span class="arena-chip">🏃 SpeedRunners 2</span>
-      <span class="arena-chip">📚 WikiRace</span>
-      <span class="arena-chip">🏎️ Trackmania</span>
-      <span class="arena-chip">🫘 Fall Guys</span>
-      <span class="arena-chip">🐍 Curve Fever</span>
+      <div class="arena-games-row">
+        <span class="arena-chip">🧠 Quizz</span>
+        <span class="arena-chip">🌍 GeoGuessr</span>
+        <span class="arena-chip">🥊 Pummel Party</span>
+        <span class="arena-chip">💣 Worms WMD</span>
+        <span class="arena-chip">🦎 Mecha Chameleon</span>
+      </div>
+      <div class="arena-games-row">
+        <span class="arena-chip">🏃 SpeedRunners 2</span>
+        <span class="arena-chip">📚 WikiRace</span>
+        <span class="arena-chip">🏎️ Trackmania</span>
+        <span class="arena-chip">🫘 Fall Guys</span>
+        <span class="arena-chip">🐍 Curve Fever</span>
+      </div>
     </div>
     <div class="arena-hero-actions">
       <a href="#arenes" class="btn btn-primary">Voir l'arène à venir</a>
@@ -2075,6 +2074,33 @@ function applyGx262ArenaEverywhere(a){
       const g = (window.__gxGames||[]).find(x => x.slug === slug);
       return g ? ('<span>' + g.icon + ' ' + g.name + '</span>') : '';
     }).join('');
+  }
+  const upcomingCard = document.querySelector('#arenes .arena-card');
+  if(upcomingCard){
+    const cardNameEl = upcomingCard.querySelector('.arena-card-body h3');
+    if(cardNameEl && a.name) cardNameEl.textContent = a.name;
+    const cardSubEl = upcomingCard.querySelector('.arena-card-body > p.section-desc.small');
+    if(cardSubEl && Array.isArray(a.days) && a.days.length){
+      const cardDaysLabel = a.days.map(d => d.label).filter(Boolean).join(' + ');
+      if(cardDaysLabel) cardSubEl.textContent = cardDaysLabel;
+    }
+    const cardChipsEl = upcomingCard.querySelector('.arena-card-games');
+    if(cardChipsEl && Array.isArray(a.games) && a.games.length){
+      cardChipsEl.innerHTML = a.games.map(slug => {
+        const g = (window.__gxGames||[]).find(x => x.slug === slug);
+        return g ? ('<span>' + stripIcon(g.icon) + ' ' + g.name + '</span>') : '';
+      }).join('');
+    }
+    const cardDayEl = upcomingCard.querySelector('.arena-card-day');
+    const cardMonthEl = upcomingCard.querySelector('.arena-card-month');
+    const firstDay = (a.days && a.days[0]) || {};
+    if(cardDayEl && cardMonthEl && firstDay.date){
+      const dt = new Date(firstDay.date + 'T00:00:00');
+      if(!isNaN(dt.getTime())){
+        cardDayEl.textContent = String(dt.getDate()).padStart(2, '0');
+        cardMonthEl.textContent = dt.toLocaleDateString('fr-FR', { month: 'short' }).toUpperCase().replace('.', '');
+      }
+    }
   }
   const programmeMain = document.querySelector('#programme .programme-main');
   if(programmeMain && Array.isArray(a.days) && a.days.length){
