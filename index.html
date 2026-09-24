@@ -2057,6 +2057,13 @@ let latestGx262ArenaData = null;
 function applyGx262ArenaEverywhere(a){
   latestGx262ArenaData = a;
   if(!a) return;
+  const titleEl = document.querySelector('#arene-gx-26-2 > .wrap > h2.section-title');
+  if(titleEl && a.name) titleEl.textContent = a.name;
+  const descEl = document.querySelector('#arene-gx-26-2 > .wrap > p.section-desc');
+  if(descEl && Array.isArray(a.days) && a.days.length){
+    const daysLabel = a.days.map(d => d.label).filter(Boolean).join(' + ');
+    if(daysLabel) descEl.textContent = daysLabel + " — inscris-toi pour rejoindre l'arène, puis découvre le programme, les jeux, le barème de points, les participants et les résultats en direct.";
+  }
   if(a.bareme && Object.keys(a.bareme).length){
     POINTS_BAREME = a.bareme;
     resultGames = (window.__gxGames || []).filter(g => POINTS_BAREME[g.slug]);
@@ -2261,7 +2268,7 @@ function subscribeResultsArena(arenaId){
 if(adminResultsArenaSelect){
   onSnapshot(collection(db, 'arenas'), (snap) => {
     const prev = adminResultsArenaSelect.value || 'gx-26-2';
-    const items = [{ id: 'gx-26-2', name: 'Kermesse GX 26.2' }];
+    const items = [{ id: 'gx-26-2', name: (latestGx262ArenaData && latestGx262ArenaData.name) || 'Kermesse GX 26.2' }];
     snap.forEach(d => { if(d.id !== 'gx-26-2') items.push({ id: d.id, name: d.data().name }); });
     adminResultsArenaSelect.innerHTML = '';
     items.forEach(it => {
