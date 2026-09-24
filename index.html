@@ -614,7 +614,23 @@ footer .brand{justify-content:center;margin-bottom:10px;}
 }
 .admin-approve{background:var(--teal);color:#0c2b23;}
 .admin-refuse{background:rgba(232,72,59,0.7);color:#fff;}
+.admin-live{background:var(--red);color:#fff;}
 .admin-empty{font-size:0.85rem;color:var(--cream-dim);}
+
+/* ---------- NOTIFICATIONS ---------- */
+.nav-notif{position:relative;display:inline-flex;align-items:center;}
+.nav-notif-btn{background:none;border:none;cursor:pointer;font-size:1.2rem;line-height:1;color:var(--cream-dim);padding:4px;position:relative;transition:color .2s;}
+.nav-notif-btn:hover{color:var(--yellow);}
+.nav-notif-panel{position:absolute;top:calc(100% + 14px);right:0;width:320px;max-height:420px;overflow-y:auto;background:var(--night-2);border:1px solid rgba(247,241,225,0.15);border-radius:14px;box-shadow:0 20px 40px rgba(0,0,0,0.4);padding:14px;z-index:80;}
+.nav-notif-panel.hidden{display:none;}
+.nav-notif-panel h4{margin:0 0 10px;font-family:'Fredoka';font-size:0.95rem;color:var(--cream);}
+.notif-item{display:block;text-decoration:none;color:var(--cream-dim);padding:10px 8px;border-radius:10px;margin-bottom:4px;transition:background .15s;cursor:pointer;}
+.notif-item:hover{background:rgba(247,241,225,0.06);}
+.notif-item.unread{background:rgba(244,196,48,0.09);}
+.notif-item-title{display:block;font-weight:600;color:var(--cream);font-size:0.85rem;}
+.notif-item-body{display:block;font-size:0.78rem;margin-top:2px;}
+.notif-item-time{display:block;font-size:0.7rem;margin-top:4px;opacity:0.6;}
+@media(max-width:480px){.nav-notif-panel{width:280px;right:-70px;}}
 
 .admin-results{margin-top:36px;padding-top:26px;border-top:1px solid rgba(247,241,225,0.12);}
 .admin-results select{
@@ -760,6 +776,13 @@ nav .brand:hover{opacity:0.82;}
       <a href="https://x.com/GALACTIXESPORT" target="_blank" rel="noopener" aria-label="X" title="X" class="social-x"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.24 2H21.5l-7.5 8.57L22.75 22h-6.84l-5.36-6.98L4.36 22H1.1l8.02-9.17L1 2h7.01l4.85 6.42L18.24 2zm-1.2 18h1.9L7.03 4H5l12.04 16z"/></svg></a>
     </div>
     <div class="nav-end">
+      <div class="nav-notif hidden" id="nav-notif">
+        <button class="nav-notif-btn" id="nav-notif-btn" type="button" aria-label="Notifications">🔔<span class="nav-badge" id="nav-notif-badge" hidden>0</span></button>
+        <div class="nav-notif-panel hidden" id="nav-notif-panel">
+          <h4>Notifications</h4>
+          <div class="nav-notif-list" id="nav-notif-list"><div class="admin-empty">Aucune notification pour l'instant.</div></div>
+        </div>
+      </div>
       <a class="nav-cta" href="#compte">Inscription</a>
       <a href="#administration" id="nav-admin-link" class="hidden">Administration<span class="nav-badge" id="nav-admin-badge" hidden>0</span></a>
     </div>
@@ -850,6 +873,15 @@ nav .brand:hover{opacity:0.82;}
     <h2 class="section-title">Les stands des arènes</h2>
     <p class="section-desc">Chaque participant doit posséder tous les jeux et prendre part à l'ensemble des tournois : c'est ce qui compte pour le classement général.</p>
     <div class="stands-grid" id="stands-grid"></div>
+  </div>
+</section>
+
+<section id="classement-general" class="home-section">
+  <div class="wrap">
+    <span class="eyebrow-tag">Classements</span>
+    <h2 class="section-title">Qui décrochera la couronne galactique ?</h2>
+    <p class="section-desc">Le classement général cumule les points de chacun·e sur l'ensemble des arènes GALACTIX. Retrouve-le en détail sur la page GX Community.</p>
+    <div class="community-leaderboard" id="home-leaderboard"></div>
   </div>
 </section>
 
@@ -1023,6 +1055,7 @@ nav .brand:hover{opacity:0.82;}
           <span class="arena-card-month">OCT.</span>
         </div>
         <div class="arena-card-body">
+          <span class="live-badge" id="upcoming-card-live-badge" hidden><span class="live-dot"></span>En direct</span>
           <h3>Kermesse 2026 v2</h3>
           <p class="section-desc small">Samedi 3 octobre 2026, à partir de 20h30.</p>
           <div class="arena-card-games">
@@ -1055,6 +1088,7 @@ nav .brand:hover{opacity:0.82;}
 <section id="arene-gx-26-2">
   <div class="wrap">
     <span class="eyebrow-tag">GALACTIX ARENA</span>
+    <span class="live-badge" id="gx262-live-badge" hidden><span class="live-dot"></span>En direct</span>
     <h2 class="section-title">Kermesse GX 26.2</h2>
     <p class="section-desc">Samedi 3 octobre 2026, à partir de 20h30 — inscris-toi pour rejoindre l'arène, puis découvre le programme, les jeux, le barème de points, les participants et les résultats en direct.</p>
     <div class="arena-card-games">
@@ -1108,8 +1142,12 @@ nav .brand:hover{opacity:0.82;}
   <section id="classement">
   <div class="wrap">
     <span class="eyebrow-tag">Classements</span>
-    <h2 class="section-title">Qui décrochera la couronne galactique ?</h2>
-    <p class="section-desc">Un classement est établi pour chaque tournoi, combiné en un classement général à l'issue de la soirée. Les résultats et les points se mettent à jour en direct au fil de la kermesse.</p>
+    <h2 class="section-title">Classement par stand</h2>
+    <p class="section-desc">Un classement est établi pour chaque stand de cette arène. Les résultats et les points se mettent à jour en direct au fil de la kermesse. Le classement général cumulé est sur la page d'accueil.</p>
+    <div class="bareme-block">
+      <button class="bareme-toggle" id="bareme-toggle" type="button">Voir le barème de points</button>
+      <div class="bareme-table hidden" id="bareme-table"></div>
+    </div>
     <div class="rank-grid" id="rank-grid"></div>
 
     <div class="participants-block">
@@ -1267,16 +1305,10 @@ games.forEach(g=>{
   standsGrid.appendChild(div);
 });
 
-/* ---------- Classement skeleton ---------- */
+/* ---------- Classement skeleton (peuplé en direct selon les jeux de l'arène gx-26-2, cf applyGx262ArenaEverywhere) ---------- */
 const rankGrid = document.getElementById('rank-grid');
-rankGrid.innerHTML = `<div class="rank-card general" id="rank-card-general"><span class="lock">🏆</span><h3>Classement général</h3><div class="rank-status" id="rank-general-body">Barème de points à venir</div><button class="bareme-toggle" id="bareme-toggle" type="button">Voir le barème de points</button><div class="bareme-table hidden" id="bareme-table"></div></div>`;
-games.forEach(g=>{
-  const div = document.createElement('div');
-  div.className = 'rank-card';
-  div.id = 'rank-card-' + g.slug;
-  div.innerHTML = `<span class="lock">🔒</span><h3>${g.name}</h3><div class="rank-status" id="rank-body-${g.slug}">Bientôt disponible</div>`;
-  rankGrid.appendChild(div);
-});
+rankGrid.innerHTML = '<p class="section-desc small">Chargement du classement…</p>';
+let staticArenaGamesList = [];
 
 /* ---------- Participants inscrits : voir le module Firebase plus bas, qui peuple #participants-list en direct ---------- */
 
@@ -1320,6 +1352,18 @@ const db = getFirestore(gxApp);
 const ADMIN_EMAIL = 'co.volkan@gmail.com';
 const ORGANIZER_EMAIL = 'co.volkan@gmail.com';
 const KERMESSE_ID = 'gx-26-2';
+
+/* ---------- Notifications (Round 23) ---------- */
+function notifyAll(type, title, message, link){
+  return setDoc(doc(collection(db, 'notifications')), {
+    type, audience: 'all', title, message, link: link || '', createdAt: serverTimestamp()
+  }).catch(() => {});
+}
+function notifyAdmin(type, title, message, link){
+  return setDoc(doc(collection(db, 'notifications')), {
+    type, audience: 'admin', title, message, link: link || '', createdAt: serverTimestamp()
+  }).catch(() => {});
+}
 
 function sanitizeEmail(email){
   return email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
@@ -1629,6 +1673,99 @@ const navAdminLink = document.getElementById('nav-admin-link');
 const navAdminBadge = document.getElementById('nav-admin-badge');
 const adminPageDenied = document.getElementById('admin-page-denied');
 
+/* ---------- Cloche de notifications (Round 23) ---------- */
+const navNotifEl = document.getElementById('nav-notif');
+const navNotifBtn = document.getElementById('nav-notif-btn');
+const navNotifPanel = document.getElementById('nav-notif-panel');
+const navNotifList = document.getElementById('nav-notif-list');
+const navNotifBadge = document.getElementById('nav-notif-badge');
+let notifItems = [];
+let notifIsAdmin = false;
+let notifUnsub = null;
+
+function getNotifLastSeen(){
+  try{ return Number(localStorage.getItem('gx_notif_last_seen')) || 0; }catch(e){ return 0; }
+}
+function setNotifLastSeen(ts){
+  try{ localStorage.setItem('gx_notif_last_seen', String(ts)); }catch(e){}
+}
+function notifTimeMs(n){
+  return (n.createdAt && typeof n.createdAt.toMillis === 'function') ? n.createdAt.toMillis() : 0;
+}
+function updateNotifBadge(){
+  if(!navNotifBadge) return;
+  const lastSeen = getNotifLastSeen();
+  const unreadCount = notifItems.filter(n => notifTimeMs(n) > lastSeen).length;
+  navNotifBadge.hidden = unreadCount === 0;
+  navNotifBadge.textContent = String(unreadCount);
+}
+function renderNotifList(){
+  if(!navNotifList) return;
+  const lastSeen = getNotifLastSeen();
+  if(notifItems.length === 0){
+    navNotifList.innerHTML = '<div class="admin-empty">Aucune notification pour l\'instant.</div>';
+  } else {
+    navNotifList.innerHTML = notifItems.map(n => {
+      const ts = notifTimeMs(n);
+      const unread = ts > lastSeen;
+      const dateLabel = ts ? new Date(ts).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
+      return '<a class="notif-item' + (unread ? ' unread' : '') + '" href="' + (n.link || '#') + '" data-link="' + (n.link || '') + '"><span class="notif-item-title">' + n.title + '</span><span class="notif-item-body">' + n.message + '</span>' + (dateLabel ? ('<span class="notif-item-time">' + dateLabel + '</span>') : '') + '</a>';
+    }).join('');
+  }
+  updateNotifBadge();
+}
+function subscribeNotifications(isAdmin){
+  notifIsAdmin = isAdmin;
+  if(notifUnsub){ notifUnsub(); notifUnsub = null; }
+  notifUnsub = onSnapshot(query(collection(db, 'notifications'), orderBy('createdAt', 'desc')), (snap) => {
+    const items = [];
+    snap.forEach(d => {
+      const n = d.data();
+      if(n.audience === 'admin' && !notifIsAdmin) return;
+      items.push(n);
+    });
+    notifItems = items.slice(0, 30);
+    renderNotifList();
+  });
+}
+function unsubscribeNotifications(){
+  if(notifUnsub){ notifUnsub(); notifUnsub = null; }
+  notifItems = [];
+  if(navNotifList) navNotifList.innerHTML = '<div class="admin-empty">Aucune notification pour l\'instant.</div>';
+  if(navNotifBadge) navNotifBadge.hidden = true;
+}
+if(navNotifBtn && navNotifPanel){
+  navNotifBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const willOpen = navNotifPanel.classList.contains('hidden');
+    navNotifPanel.classList.toggle('hidden');
+    if(willOpen){
+      setNotifLastSeen(Date.now());
+      renderNotifList();
+    }
+  });
+}
+if(navNotifList){
+  navNotifList.addEventListener('click', (e) => {
+    const item = e.target.closest('.notif-item');
+    if(!item) return;
+    e.preventDefault();
+    if(navNotifPanel) navNotifPanel.classList.add('hidden');
+    const link = item.dataset.link;
+    if(link){
+      history.pushState(null, '', link);
+      if(typeof handleHashRouting === 'function') handleHashRouting(link);
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+  });
+}
+document.addEventListener('click', (e) => {
+  if(navNotifEl && navNotifPanel && !navNotifEl.contains(e.target)){
+    navNotifPanel.classList.add('hidden');
+  }
+});
+
 function setAdminUI(isAdmin){
   if(isAdmin){
     adminPanel.classList.remove('hidden');
@@ -1732,6 +1869,7 @@ accountSignupBtn.addEventListener('click', async () => {
       avatar: null,
       createdAt: serverTimestamp()
     });
+    notifyAdmin('admin_new_user', 'Nouvel utilisateur inscrit', pseudo + ' (' + email + ') vient de créer un compte.', '#administration');
   }catch(err){
     accountSignupMsg.className = 'account-msg err';
     accountSignupMsg.textContent = authErrorMessage(err, "Impossible de créer le compte.");
@@ -1763,6 +1901,7 @@ accountSetupBtn.addEventListener('click', async () => {
       avatar: null,
       createdAt: serverTimestamp()
     });
+    notifyAdmin('admin_new_user', 'Nouvel utilisateur inscrit', pseudo + ' (' + email + ') vient de créer un compte.', '#administration');
   }catch(err){
     accountSetupMsg.className = 'account-msg err';
     accountSetupMsg.textContent = authErrorMessage(err, "Impossible de créer ton profil pour le moment.");
@@ -1885,6 +2024,7 @@ async function confirmParticipation(){
       kermesseId: activeKermesseId,
       createdAt: serverTimestamp()
     });
+    notifyAdmin('admin_new_registration', 'Nouvelle inscription à une arène', pseudo + ' souhaite rejoindre ' + activeKermesseFullTitle + '.', '#administration');
     const joursLabel = Array.isArray(jours) ? jours.join(', ') : jours;
     fetch('https://formsubmit.co/ajax/' + ORGANIZER_EMAIL, {
       method: 'POST',
@@ -1942,6 +2082,8 @@ onAuthStateChanged(auth, (user) => {
     accountLoginCard.classList.remove('hidden');
     accountSignupCard.classList.remove('hidden');
     setAdminUI(false);
+    if(navNotifEl) navNotifEl.classList.add('hidden');
+    unsubscribeNotifications();
     currentUserRef = null;
     currentRegRef = null;
     currentAuthEmail = null;
@@ -1979,6 +2121,9 @@ onAuthStateChanged(auth, (user) => {
     if(typeof renderStandFavoriOptions === 'function') renderStandFavoriOptions();
     if(profileStandFavoriEl) profileStandFavoriEl.value = data.standFavori || '';
   });
+
+  if(navNotifEl) navNotifEl.classList.remove('hidden');
+  subscribeNotifications(email === ADMIN_EMAIL);
 
   if(email === ADMIN_EMAIL){
     setAdminUI(true);
@@ -2053,9 +2198,23 @@ if(baremeToggleBtn && baremeTableEl){
 
 /* ---------- GX 26.2 : lecture live depuis arenas/gx-26-2 (Round 16) ---------- */
 let latestGx262ArenaData = null;
+function renderStaticRankGrid(gamesList){
+  staticArenaGamesList = gamesList;
+  const rankGridEl = document.getElementById('rank-grid');
+  if(!rankGridEl) return;
+  rankGridEl.innerHTML = gamesList.map(g => '<div class="rank-card" id="rank-card-' + g.slug + '"><span class="lock">🔒</span><h3>' + g.name + '</h3><div class="rank-status" id="rank-body-' + g.slug + '">Bientôt disponible</div></div>').join('');
+}
 function applyGx262ArenaEverywhere(a){
   latestGx262ArenaData = a;
   if(!a) return;
+  const gx262LiveBadgeEl = document.getElementById('gx262-live-badge');
+  if(gx262LiveBadgeEl) gx262LiveBadgeEl.hidden = a.status !== 'live';
+  const upcomingCardLiveBadgeEl = document.getElementById('upcoming-card-live-badge');
+  if(upcomingCardLiveBadgeEl) upcomingCardLiveBadgeEl.hidden = a.status !== 'live';
+  if(Array.isArray(a.games)){
+    const gList = a.games.map(slug => (window.__gxGames||[]).find(g => g.slug === slug)).filter(Boolean);
+    renderStaticRankGrid(gList);
+  }
   const titleEl = document.querySelector('#arene-gx-26-2 > .wrap > h2.section-title');
   if(titleEl && a.name) titleEl.textContent = a.name;
   const descEl = document.querySelector('#arene-gx-26-2 > .wrap > p.section-desc');
@@ -2387,7 +2546,7 @@ onSnapshot(qResults, (snap) => {
     const data = d.data();
     currentResultsBySlug[data.gameSlug] = data;
   });
-  (window.__gxGames || []).forEach(g => {
+  staticArenaGamesList.forEach(g => {
     const body = document.getElementById('rank-body-' + g.slug);
     if(!body) return;
     const res = currentResultsBySlug[g.slug];
@@ -2404,8 +2563,9 @@ onSnapshot(qResults, (snap) => {
 /* ---------- GX Community : classement général cumulé + membres (Round 15) ---------- */
 const communityLeaderboardEl = document.getElementById('community-leaderboard');
 const communityMembersEl = document.getElementById('community-members-list');
+const homeLeaderboardEl = document.getElementById('home-leaderboard');
 let communityRankingCache = [];
-if(communityLeaderboardEl || communityMembersEl){
+if(communityLeaderboardEl || communityMembersEl || homeLeaderboardEl){
   const qAllApproved = query(collection(db, 'registrations'), where('approved', '==', true));
   onSnapshot(qAllApproved, (snap) => {
     const byEmail = {};
@@ -2427,6 +2587,16 @@ if(communityLeaderboardEl || communityMembersEl){
         communityLeaderboardEl.innerHTML = '<div class="admin-empty">Personne pour l\'instant.</div>';
       } else {
         communityLeaderboardEl.innerHTML = list.map((p, i) => {
+          const rankClass = i < 3 ? ' top3' : '';
+          return '<div class="leaderboard-row' + rankClass + '" data-email="' + p.email + '"><span class="leaderboard-rank">' + (i+1) + '</span><span class="leaderboard-avatar" style="background:' + avatarBg(p.avatar) + '">' + avatarInnerHTML(p.avatar) + '</span><span class="leaderboard-name">' + p.pseudo + '</span><span class="leaderboard-meta">' + p.arenas + ' arène' + (p.arenas>1?'s':'') + '</span><span class="leaderboard-points">' + p.totalPoints + ' pt' + (p.totalPoints>1?'s':'') + '</span></div>';
+        }).join('');
+      }
+    }
+    if(homeLeaderboardEl){
+      if(list.length === 0){
+        homeLeaderboardEl.innerHTML = '<div class="admin-empty">Personne pour l\'instant.</div>';
+      } else {
+        homeLeaderboardEl.innerHTML = list.map((p, i) => {
           const rankClass = i < 3 ? ' top3' : '';
           return '<div class="leaderboard-row' + rankClass + '" data-email="' + p.email + '"><span class="leaderboard-rank">' + (i+1) + '</span><span class="leaderboard-avatar" style="background:' + avatarBg(p.avatar) + '">' + avatarInnerHTML(p.avatar) + '</span><span class="leaderboard-name">' + p.pseudo + '</span><span class="leaderboard-meta">' + p.arenas + ' arène' + (p.arenas>1?'s':'') + '</span><span class="leaderboard-points">' + p.totalPoints + ' pt' + (p.totalPoints>1?'s':'') + '</span></div>';
         }).join('');
@@ -2887,6 +3057,7 @@ if(arenaCreateBtn){
           createdAt: serverTimestamp(),
           archivedAt: null
         });
+        notifyAll('arena_created', 'Nouvelle arène : ' + name, 'Une nouvelle arène GALACTIX vient d\'être créée : ' + name + '. Inscris-toi !', '#arenes');
         msg.className = 'account-msg ok';
         msg.textContent = 'Arène créée !';
       }
@@ -2911,7 +3082,7 @@ if(adminArenasListEl){
     items.forEach(a => {
       const row = document.createElement('div');
       row.className = 'admin-item';
-      const statusLabel = a.status === 'archived' ? 'Archivée' : 'À venir';
+      const statusLabel = a.status === 'archived' ? 'Archivée' : (a.status === 'live' ? '🔴 En direct' : 'À venir');
       row.innerHTML = '<div class="admin-item-info">' + a.name + '<span>' + a.kermesseId + ' — ' + statusLabel + '</span></div><div class="admin-actions"></div>';
       const actions = row.querySelector('.admin-actions');
       const editBtn = document.createElement('button');
@@ -2919,12 +3090,23 @@ if(adminArenasListEl){
       editBtn.textContent = 'Modifier';
       editBtn.addEventListener('click', () => loadArenaIntoForm(a));
       actions.appendChild(editBtn);
+      if(a.status !== 'archived' && a.status !== 'live'){
+        const liveBtn = document.createElement('button');
+        liveBtn.className = 'admin-btn admin-live';
+        liveBtn.textContent = 'Lancer en direct';
+        liveBtn.addEventListener('click', async () => {
+          await updateDoc(doc(db, 'arenas', a.id), { status: 'live', liveAt: serverTimestamp() });
+          notifyAll('arena_live', '🔴 EN DIRECT : ' + a.name, a.name + ' est officiellement lancée ! Rejoins-nous en direct.', a.kermesseId === 'gx-26-2' ? '#arene-gx-26-2' : ('#arene-' + a.kermesseId));
+        });
+        actions.appendChild(liveBtn);
+      }
       if(a.status !== 'archived'){
         const archiveBtn = document.createElement('button');
         archiveBtn.className = 'admin-btn admin-approve';
         archiveBtn.textContent = 'Archiver';
         archiveBtn.addEventListener('click', async () => {
           await updateDoc(doc(db, 'arenas', a.id), { status: 'archived', archivedAt: serverTimestamp() });
+          notifyAll('arena_archived', a.name + ' est terminée', 'Retrouve le classement final de ' + a.name + '.', a.kermesseId === 'gx-26-2' ? '#arene-gx-26-2' : ('#arene-' + a.kermesseId));
         });
         actions.appendChild(archiveBtn);
       }
@@ -2962,7 +3144,8 @@ function renderArenaCard(a){
   const actionsHtml = a.status === 'archived'
     ? ('<a href="#arene-' + a.kermesseId + '" class="btn btn-ghost">Voir le classement final</a>')
     : ('<a href="#compte" class="btn btn-primary arena-register-link" data-kermesse="' + a.kermesseId + '">Je participe</a><a href="#arene-' + a.kermesseId + '" class="btn btn-ghost">Voir l\'arène</a>');
-  return '<div class="arena-card"><div class="arena-card-date"><span class="arena-card-day">' + dayNum + '</span><span class="arena-card-month">' + monthLabel + '</span></div><div class="arena-card-body"><h3>' + a.shortName + '</h3><p class="section-desc small">' + daysLabel + '</p><div class="arena-card-games">' + gamesChips + '</div><div class="arena-card-actions">' + actionsHtml + '</div></div></div>';
+  const liveBadgeHtml = a.status === 'live' ? '<span class="live-badge"><span class="live-dot"></span>En direct</span>' : '';
+  return '<div class="arena-card"><div class="arena-card-date"><span class="arena-card-day">' + dayNum + '</span><span class="arena-card-month">' + monthLabel + '</span></div><div class="arena-card-body">' + liveBadgeHtml + '<h3>' + a.shortName + '</h3><p class="section-desc small">' + daysLabel + '</p><div class="arena-card-games">' + gamesChips + '</div><div class="arena-card-actions">' + actionsHtml + '</div></div></div>';
 }
 
 function wireArenaRegisterLinks(container){
@@ -3035,6 +3218,7 @@ async function renderDynamicArenaPage(kermesseId){
     }
     const arena = snap.data();
     const isArchived = arena.status === 'archived';
+    const isLive = arena.status === 'live';
     const gamesList = (arena.games || []).map(slug => (window.__gxGames || []).find(g => g.slug === slug)).filter(Boolean);
     const gamesChipsHtml = gamesList.map(g => '<span>' + stripIcon(g.icon) + ' ' + g.name + '</span>').join('');
 
@@ -3061,6 +3245,7 @@ async function renderDynamicArenaPage(kermesseId){
 
     container.innerHTML =
       '<span class="eyebrow-tag">GALACTIX ARENA' + (isArchived ? ' · Archivée' : '') + '</span>' +
+      (isLive ? '<span class="live-badge"><span class="live-dot"></span>En direct</span>' : '') +
       '<h2 class="section-title">' + arena.name + '</h2>' +
       '<p class="section-desc">' + (arena.days || []).map(d => d.label).join(' + ') + '</p>' +
       '<div class="arena-card-games">' + gamesChipsHtml + '</div>' +
