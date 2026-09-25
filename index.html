@@ -449,6 +449,25 @@ nav .links a:hover{color:var(--yellow);}
   border-radius:999px;padding:7px 14px;font-size:0.82rem;color:var(--cream-dim);cursor:pointer;
 }
 .arena-game-check input{width:14px;height:14px;}
+.arena-game-add-row{display:flex;gap:10px;align-items:center;margin:14px 0;flex-wrap:wrap;}
+.arena-game-add-row select{flex:1;min-width:180px;margin-bottom:0;}
+.arena-games-selected{display:flex;flex-direction:column;gap:8px;margin:16px 0;}
+.arena-game-entry-row{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--night-2);
+  border:1px solid rgba(247,241,225,0.12);border-radius:10px;padding:10px 14px;
+}
+.arena-game-entry-name{flex:1;min-width:140px;font-size:0.85rem;color:var(--cream);}
+.arena-game-entry-format{max-width:160px;margin-bottom:0;}
+.arena-bareme-entry{
+  background:var(--night-2);border:1px solid rgba(247,241,225,0.1);border-radius:10px;
+  padding:14px 16px;margin-bottom:12px;
+}
+.arena-bareme-positions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0;}
+.arena-bareme-pos{display:flex;align-items:center;gap:4px;}
+.arena-bareme-pos input{
+  width:70px;padding:8px 10px;border-radius:8px;border:2px solid rgba(247,241,225,0.15);
+  font-family:'Space Grotesk';font-size:0.85rem;background:#fff;color:#1B1748;
+}
 .arena-day-block{
   background:var(--night-2);border:1px solid rgba(247,241,225,0.1);border-radius:12px;
   padding:20px;margin-bottom:20px;
@@ -590,10 +609,24 @@ footer .brand{justify-content:center;margin-bottom:10px;}
 
 /* ---------- ADMIN ---------- */
 .admin-panel{
-  max-width:640px;margin:24px auto 0;background:rgba(232,72,59,0.08);border:1px solid rgba(232,72,59,0.3);
+  max-width:760px;margin:24px auto 0;background:rgba(232,72,59,0.08);border:1px solid rgba(232,72,59,0.3);
   border-radius:16px;padding:30px 32px;
 }
 .admin-panel h3{font-family:'Fredoka';font-weight:600;color:var(--cream);font-size:1rem;margin-bottom:10px;}
+/* ---------- Onglets admin (Round 27) ---------- */
+.admin-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;}
+.admin-tab-btn{
+  position:relative;border:1px solid rgba(247,241,225,0.18);background:var(--night-2);color:var(--cream-dim);
+  border-radius:999px;padding:9px 18px;font-family:'Space Grotesk';font-weight:600;font-size:0.82rem;cursor:pointer;
+}
+.admin-tab-btn.active{background:var(--red);border-color:var(--red);color:#fff;}
+.admin-tab-badge{
+  display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;margin-left:6px;
+  background:var(--yellow);color:#1B1748;border-radius:999px;font-size:0.68rem;font-weight:700;padding:0 5px;
+}
+.admin-tab-panel{display:none;}
+.admin-tab-panel.active{display:block;}
+.admin-tab-panel .admin-results:first-child{margin-top:0;padding-top:0;border-top:none;}
 .admin-panel .account-hint{margin-bottom:20px;}
 .admin-item{
   display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
@@ -814,11 +847,13 @@ nav .brand:hover{opacity:0.82;}
         <span class="arena-chip">💣 Worms WMD</span>
         <span class="arena-chip">🏃 SpeedRunners 2</span>
         <span class="arena-chip">🏎️ TrackMania</span>
-        <span class="arena-chip">🫘 Fall Guys</span>
       </div>
       <div class="arena-games-row">
+        <span class="arena-chip">🫘 Fall Guys</span>
         <span class="arena-chip">🧠 Quizz</span>
         <span class="arena-chip">🌍 GeoGuessr</span>
+      </div>
+      <div class="arena-games-row">
         <span class="arena-chip">🐍 Curve Fever</span>
         <span class="arena-chip">🦎 Mecha Chameleon</span>
         <span class="arena-chip">📚 WikiRace</span>
@@ -866,7 +901,7 @@ nav .brand:hover{opacity:0.82;}
 <section id="live" class="home-section">
   <div class="wrap">
     <span class="live-badge"><span class="live-dot"></span>En direct</span>
-    <h2 class="section-title">Suis la kermesse en live</h2>
+    <h2 class="section-title">Suis les arènes en live</h2>
     <p class="section-desc">Toute l'action sera diffusée en direct sur la chaîne Kick de GALACTIX ARENA pendant toute la soirée.</p>
     <div class="live-embed">
       <iframe src="https://player.kick.com/vekahaine" allow="autoplay; fullscreen" allowfullscreen title="Live GALACTIX ARENA sur Kick"></iframe>
@@ -877,7 +912,7 @@ nav .brand:hover{opacity:0.82;}
 
 <section id="jeux" class="home-section">
   <div class="wrap">
-    <span class="eyebrow-tag">Format individuel</span>
+    <span class="eyebrow-tag">Jeux</span>
     <h2 class="section-title">Les stands des arènes</h2>
     <p class="section-desc">Chaque participant doit posséder tous les jeux et prendre part à l'ensemble des tournois : c'est ce qui compte pour le classement général.</p>
     <div class="stands-grid" id="stands-grid"></div>
@@ -979,71 +1014,96 @@ nav .brand:hover{opacity:0.82;}
     <div class="account-hint" id="admin-page-denied">Cette page est réservée à l'administration de la kermesse. Connecte-toi avec le compte admin pour y accéder.</div>
 
     <div class="admin-panel hidden" id="admin-panel">
-      <h3>🛡️ Demandes de participation à valider</h3>
-      <div class="account-hint">Approuve pour faire apparaître le pseudo dans le classement.</div>
-      <div id="admin-list"></div>
-
-      <div class="admin-results" id="admin-results">
-        <h3>🏅 Résultats des étapes</h3>
-        <div class="account-hint">Choisis d'abord l'arène concernée, puis un jeu, puis indique le classement complet (tous les participants concernés). Les points se calculent automatiquement et le classement général de cette arène se met à jour en direct.</div>
-        <select class="admin-results-select" id="admin-results-arena"></select>
-        <select class="admin-results-select" id="admin-results-game"></select>
-        <div id="admin-results-form"></div>
-        <button class="btn btn-primary" id="admin-results-submit">Enregistrer ce classement</button>
-        <div class="account-msg" id="admin-results-msg"></div>
+      <div class="admin-tabs">
+        <button type="button" class="admin-tab-btn active" data-admin-tab="demandes">Demandes<span class="admin-tab-badge hidden" id="admin-tab-badge-demandes">0</span></button>
+        <button type="button" class="admin-tab-btn" data-admin-tab="arenes">Arènes &amp; barèmes</button>
+        <button type="button" class="admin-tab-btn" data-admin-tab="resultats">Résultats</button>
+        <button type="button" class="admin-tab-btn" data-admin-tab="stands">Stands</button>
+        <button type="button" class="admin-tab-btn" data-admin-tab="archives">Archives</button>
       </div>
 
-      <div class="admin-results" id="admin-archives-panel">
-        <h3>🗄️ Archives GALACTIX</h3>
-        <div class="account-hint">Ajoute un souvenir (résultat, photo, vidéo, lien) qui apparaîtra dans "GX Community → Archives".</div>
-        <div class="account-login">
-          <input type="text" id="archive-title" placeholder="Titre (ex. Finale Quizz - GX 25.1)">
-          <input type="text" id="archive-date" placeholder="Date (ex. 18 septembre 2026)">
+      <div class="admin-tab-panel active" data-admin-panel="demandes">
+        <div class="admin-results">
+          <h3>🛡️ Demandes de participation à valider</h3>
+          <div class="account-hint">Approuve pour faire apparaître le pseudo dans le classement.</div>
+          <div id="admin-list"></div>
         </div>
-        <div class="account-login">
-          <input type="url" id="archive-url" placeholder="Lien (photo, vidéo, VOD... optionnel)">
-          <input type="text" id="archive-description" placeholder="Description courte">
-        </div>
-        <button class="btn btn-primary" id="archive-add-btn">Ajouter aux archives</button>
-        <div class="account-msg" id="archive-add-msg"></div>
-        <div id="admin-archives-list"></div>
       </div>
 
-      <div class="admin-results" id="admin-games-panel">
-        <h3>🎮 Stands (jeux)</h3>
-        <div class="account-hint">Ajoute un nouveau stand ici — il devient sélectionnable pour n'importe quelle arène. Un émoji est suggéré automatiquement, tu peux le remplacer.</div>
-        <div class="account-login">
-          <input type="text" id="game-name" placeholder="Nom du stand (ex. Mario Kart)">
-          <input type="text" id="game-icon" placeholder="Émoji" maxlength="8" style="max-width:90px;">
+      <div class="admin-tab-panel" data-admin-panel="arenes">
+        <div class="admin-results" id="admin-arenas-panel">
+          <h3>🏟️ Créer une arène</h3>
+          <div class="account-hint">Ajoute les jeux de cette arène un par un — un même jeu peut être ajouté plusieurs fois (par exemple en individuel puis en équipes). Règle ensuite le barème de points de chaque jeu, ajoute un ou plusieurs jours avec leurs créneaux, puis crée l'arène. Elle apparaîtra automatiquement sur la page "Arènes" et aura sa propre page.</div>
+          <div class="account-login">
+            <input type="text" id="arena-name" placeholder="Nom complet (ex. GALACTIX ARENA #1.2)">
+            <input type="text" id="arena-short-name" placeholder="Nom court pour la carte (ex. GALACTIX ARENA #1.2)">
+          </div>
+          <div class="account-login">
+            <input type="text" id="arena-slug" placeholder="Identifiant technique (ex. gx-27-1)">
+          </div>
+          <div class="arena-game-add-row">
+            <select class="admin-results-select" id="arena-game-add-select"></select>
+            <button class="btn btn-ghost" type="button" id="arena-game-add-btn">+ Ajouter ce jeu</button>
+          </div>
+          <div class="arena-games-selected" id="arena-games-picker"></div>
+          <div class="account-hint">Barème de points de chaque jeu sélectionné (ajoute autant de positions que nécessaire) :</div>
+          <div class="arena-bareme-builder" id="arena-bareme-builder"></div>
+          <div class="arena-days-builder" id="arena-days-builder"></div>
+          <button class="btn btn-ghost" type="button" id="arena-add-day-btn">+ Ajouter un jour</button>
+          <button class="btn btn-primary" id="arena-create-btn">Créer l'arène</button>
+          <button class="btn btn-ghost hidden" type="button" id="arena-cancel-edit-btn">Annuler la modification</button>
+          <div class="account-msg" id="arena-create-msg"></div>
         </div>
-        <button class="btn btn-primary" id="game-add-btn">Ajouter ce stand</button>
-        <div class="account-msg" id="game-add-msg"></div>
-        <div id="admin-games-list"></div>
+
+        <div class="admin-results" id="admin-arenas-list-panel">
+          <h3>🗂️ Arènes créées</h3>
+          <div class="account-hint">Clique sur "Modifier" pour changer les jeux, le format ou le barème d'une arène existante — y compris GALACTIX ARENA #26.2.</div>
+          <div id="admin-arenas-list"></div>
+        </div>
       </div>
 
-      <div class="admin-results" id="admin-arenas-panel">
-        <h3>🏟️ Créer une arène</h3>
-        <div class="account-hint">Choisis les jeux, ajoute un ou plusieurs jours avec leurs créneaux, puis crée l'arène. Elle apparaîtra automatiquement sur la page "Arènes" et aura sa propre page.</div>
-        <div class="account-login">
-          <input type="text" id="arena-name" placeholder="Nom complet (ex. GALACTIX ARENA #1.2)">
-          <input type="text" id="arena-short-name" placeholder="Nom court pour la carte (ex. GALACTIX ARENA #1.2)">
+      <div class="admin-tab-panel" data-admin-panel="resultats">
+        <div class="admin-results" id="admin-results">
+          <h3>🏅 Résultats des étapes</h3>
+          <div class="account-hint">Choisis d'abord l'arène concernée, puis un jeu, puis indique le classement complet (tous les participants concernés). Les points se calculent automatiquement et le classement général de cette arène se met à jour en direct.</div>
+          <select class="admin-results-select" id="admin-results-arena"></select>
+          <select class="admin-results-select" id="admin-results-game"></select>
+          <div id="admin-results-form"></div>
+          <button class="btn btn-primary" id="admin-results-submit">Enregistrer ce classement</button>
+          <div class="account-msg" id="admin-results-msg"></div>
         </div>
-        <div class="account-login">
-          <input type="text" id="arena-slug" placeholder="Identifiant technique (ex. gx-27-1)">
-        </div>
-        <div class="arena-games-picker" id="arena-games-picker"></div>
-        <div class="account-hint">Barème de points pour les jeux sélectionnés (laisse une case vide si cette position n'existe pas) :</div>
-        <div class="arena-bareme-builder" id="arena-bareme-builder"></div>
-        <div class="arena-days-builder" id="arena-days-builder"></div>
-        <button class="btn btn-ghost" type="button" id="arena-add-day-btn">+ Ajouter un jour</button>
-        <button class="btn btn-primary" id="arena-create-btn">Créer l'arène</button>
-        <button class="btn btn-ghost hidden" type="button" id="arena-cancel-edit-btn">Annuler la modification</button>
-        <div class="account-msg" id="arena-create-msg"></div>
       </div>
 
-      <div class="admin-results" id="admin-arenas-list-panel">
-        <h3>🗂️ Arènes créées</h3>
-        <div id="admin-arenas-list"></div>
+      <div class="admin-tab-panel" data-admin-panel="stands">
+        <div class="admin-results" id="admin-games-panel">
+          <h3>🎮 Stands (jeux)</h3>
+          <div class="account-hint">Ajoute un nouveau stand ici — il devient sélectionnable pour n'importe quelle arène. Un émoji est suggéré automatiquement, tu peux le remplacer.</div>
+          <div class="account-login">
+            <input type="text" id="game-name" placeholder="Nom du stand (ex. Mario Kart)">
+            <input type="text" id="game-icon" placeholder="Émoji" maxlength="8" style="max-width:90px;">
+          </div>
+          <button class="btn btn-primary" id="game-add-btn">Ajouter ce stand</button>
+          <div class="account-msg" id="game-add-msg"></div>
+          <div id="admin-games-list"></div>
+        </div>
+      </div>
+
+      <div class="admin-tab-panel" data-admin-panel="archives">
+        <div class="admin-results" id="admin-archives-panel">
+          <h3>🗄️ Archives GALACTIX</h3>
+          <div class="account-hint">Ajoute un souvenir (résultat, photo, vidéo, lien) qui apparaîtra dans "GX Community → Archives".</div>
+          <div class="account-login">
+            <input type="text" id="archive-title" placeholder="Titre (ex. Finale Quizz - GX 25.1)">
+            <input type="text" id="archive-date" placeholder="Date (ex. 18 septembre 2026)">
+          </div>
+          <div class="account-login">
+            <input type="url" id="archive-url" placeholder="Lien (photo, vidéo, VOD... optionnel)">
+            <input type="text" id="archive-description" placeholder="Description courte">
+          </div>
+          <button class="btn btn-primary" id="archive-add-btn">Ajouter aux archives</button>
+          <div class="account-msg" id="archive-add-msg"></div>
+          <div id="admin-archives-list"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1308,7 +1368,6 @@ games.forEach(g=>{
   div.innerHTML = `<div class="stand-top"></div><div class="stand-body">
     <span class="stand-icon">${g.icon}</span>
     <h3>${g.name}</h3>
-    <span class="stand-tag">Individuel</span>
   </div>`;
   standsGrid.appendChild(div);
 });
@@ -1680,6 +1739,15 @@ const adminList = document.getElementById('admin-list');
 const navAdminLink = document.getElementById('nav-admin-link');
 const navAdminBadge = document.getElementById('nav-admin-badge');
 const adminPageDenied = document.getElementById('admin-page-denied');
+
+/* ---------- Onglets du panneau admin (Round 27) ---------- */
+document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.adminTab;
+    document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.admin-tab-panel').forEach(p => p.classList.toggle('active', p.dataset.adminPanel === tab));
+  });
+});
 
 /* ---------- Cloche de notifications (Round 23) ---------- */
 const navNotifEl = document.getElementById('nav-notif');
@@ -2144,6 +2212,11 @@ onAuthStateChanged(auth, (user) => {
         navAdminBadge.hidden = items.length === 0;
         navAdminBadge.textContent = String(items.length);
       }
+      const adminTabBadgeDemandes = document.getElementById('admin-tab-badge-demandes');
+      if(adminTabBadgeDemandes){
+        adminTabBadgeDemandes.hidden = items.length === 0;
+        adminTabBadgeDemandes.textContent = String(items.length);
+      }
     });
     if(typeof bootstrapGamesCatalog === 'function') bootstrapGamesCatalog();
     if(typeof bootstrapGx262Arena === 'function') bootstrapGx262Arena();
@@ -2181,8 +2254,35 @@ let POINTS_BAREME = {
   'pummel-party': [10,5,3],
   'speedrunners-2': [10,5,3]
 };
-let resultGames = (window.__gxGames || []).filter(g => POINTS_BAREME[g.slug]);
-function resultDocId(slug){ return KERMESSE_ID + '_' + slug; }
+/* ---------- Jeux par arène en "entries" {id, slug, format} (Round 27) ---------- */
+/* id = identifiant unique du jeu au sein de l'arène (par défaut = slug, ce qui
+   garde toutes les données existantes valides sans migration) ; format vaut
+   'individuel' ou 'equipes'. Un même jeu peut apparaître plusieurs fois dans
+   une même arène (ids différents), par ex. en individuel ET en équipes. */
+function nextEntryId(slug, existingEntries){
+  const ids = (existingEntries || []).map(e => e.id);
+  if(ids.indexOf(slug) === -1) return slug;
+  let n = 2;
+  while(ids.indexOf(slug + '-' + n) !== -1) n++;
+  return slug + '-' + n;
+}
+function normalizeArenaGames(gamesRaw){
+  return (gamesRaw || []).map(entry => {
+    const slug = (typeof entry === 'string') ? entry : entry.slug;
+    if(!slug) return null;
+    const g = (window.__gxGames || []).find(x => x.slug === slug) || { slug: slug, name: slug, icon: '🎮' };
+    const id = (typeof entry === 'string') ? entry : (entry.id || entry.slug);
+    const format = (typeof entry === 'string') ? 'individuel' : (entry.format || 'individuel');
+    return { id: id, slug: slug, format: format, name: g.name, icon: g.icon };
+  }).filter(Boolean);
+}
+function entryFormatLabel(format){ return format === 'equipes' ? 'Équipes' : 'Individuel'; }
+function entryDisplayName(entry, allEntries){
+  const dup = (allEntries || []).filter(e => e.slug === entry.slug).length > 1;
+  return entry.name + (dup ? (' (' + entryFormatLabel(entry.format) + ')') : '');
+}
+let resultGames = (window.__gxGames || []).filter(g => POINTS_BAREME[g.slug]).map(g => ({ id: g.slug, slug: g.slug, format: 'individuel', name: g.name, icon: g.icon }));
+function resultDocId(id){ return KERMESSE_ID + '_' + id; }
 
 const baremeToggleBtn = document.getElementById('bareme-toggle');
 const baremeTableEl = document.getElementById('bareme-table');
@@ -2190,9 +2290,9 @@ function renderBaremeTable(){
   if(!baremeTableEl) return;
   const posLabels = { 1: '1er', 2: '2e', 3: '3e', 4: '4e', 5: '5e' };
   baremeTableEl.innerHTML = '<ul class="bareme-list">' + resultGames.map(g => {
-    const bareme = POINTS_BAREME[g.slug] || [];
+    const bareme = POINTS_BAREME[g.id] || [];
     const parts = bareme.map((pts, idx) => (posLabels[idx+1] || (idx+1)+'e') + ' ' + pts + ' pts').join(', ');
-    return '<li><strong>' + g.name + '</strong> — ' + parts + '</li>';
+    return '<li><strong>' + entryDisplayName(g, resultGames) + '</strong> — ' + parts + '</li>';
   }).join('') + '</ul>';
 }
 renderBaremeTable();
@@ -2210,7 +2310,7 @@ function renderStaticRankGrid(gamesList){
   staticArenaGamesList = gamesList;
   const rankGridEl = document.getElementById('rank-grid');
   if(!rankGridEl) return;
-  rankGridEl.innerHTML = gamesList.map(g => '<div class="rank-card" id="rank-card-' + g.slug + '"><span class="lock">🔒</span><h3>' + g.name + '</h3><div class="rank-status" id="rank-body-' + g.slug + '">Bientôt disponible</div></div>').join('');
+  rankGridEl.innerHTML = gamesList.map(g => '<div class="rank-card" id="rank-card-' + g.id + '"><span class="lock">🔒</span><h3>' + entryDisplayName(g, gamesList) + '</h3><div class="rank-status" id="rank-body-' + g.id + '">Bientôt disponible</div></div>').join('');
 }
 function arenaStatusBadgeHtml(status){
   if(status === 'archived') return '<span class="status-badge status-archived"><span class="status-dot"></span>Archivée</span>';
@@ -2229,9 +2329,10 @@ function applyGx262ArenaEverywhere(a){
   if(gx262StatusBadgeEl) gx262StatusBadgeEl.innerHTML = arenaStatusBadgeHtml(a.status);
   const upcomingCardLiveBadgeEl = document.getElementById('upcoming-card-live-badge');
   if(upcomingCardLiveBadgeEl) upcomingCardLiveBadgeEl.hidden = a.status !== 'live';
+  let gEntries = [];
   if(Array.isArray(a.games)){
-    const gList = a.games.map(slug => (window.__gxGames||[]).find(g => g.slug === slug)).filter(Boolean);
-    renderStaticRankGrid(gList);
+    gEntries = normalizeArenaGames(a.games);
+    renderStaticRankGrid(gEntries);
   }
   const titleEl = document.querySelector('#arene-gx-26-2 > .wrap > h2.section-title');
   if(titleEl && a.name) titleEl.textContent = a.name;
@@ -2242,15 +2343,12 @@ function applyGx262ArenaEverywhere(a){
   }
   if(a.bareme && Object.keys(a.bareme).length){
     POINTS_BAREME = a.bareme;
-    resultGames = (window.__gxGames || []).filter(g => POINTS_BAREME[g.slug]);
+    resultGames = gEntries.filter(g => POINTS_BAREME[g.id]);
     renderBaremeTable();
   }
   const chipsEl = document.querySelector('#arene-gx-26-2 .arena-card-games');
-  if(chipsEl && Array.isArray(a.games) && a.games.length){
-    chipsEl.innerHTML = a.games.map(slug => {
-      const g = (window.__gxGames||[]).find(x => x.slug === slug);
-      return g ? ('<span>' + g.icon + ' ' + g.name + '</span>') : '';
-    }).join('');
+  if(chipsEl && gEntries.length){
+    chipsEl.innerHTML = gEntries.map(g => '<span>' + g.icon + ' ' + entryDisplayName(g, gEntries) + '</span>').join('');
   }
   const upcomingCard = document.querySelector('#arenes .arena-card');
   if(upcomingCard){
@@ -2262,11 +2360,8 @@ function applyGx262ArenaEverywhere(a){
       if(cardDaysLabel) cardSubEl.textContent = cardDaysLabel;
     }
     const cardChipsEl = upcomingCard.querySelector('.arena-card-games');
-    if(cardChipsEl && Array.isArray(a.games) && a.games.length){
-      cardChipsEl.innerHTML = a.games.map(slug => {
-        const g = (window.__gxGames||[]).find(x => x.slug === slug);
-        return g ? ('<span>' + stripIcon(g.icon) + ' ' + g.name + '</span>') : '';
-      }).join('');
+    if(cardChipsEl && gEntries.length){
+      cardChipsEl.innerHTML = gEntries.map(g => '<span>' + stripIcon(g.icon) + ' ' + entryDisplayName(g, gEntries) + '</span>').join('');
     }
     const cardDayEl = upcomingCard.querySelector('.arena-card-day');
     const cardMonthEl = upcomingCard.querySelector('.arena-card-month');
@@ -2283,8 +2378,8 @@ function applyGx262ArenaEverywhere(a){
   if(programmeMain && Array.isArray(a.days) && a.days.length){
     programmeMain.innerHTML = a.days.map((d, i) => {
       const items = (d.slots || []).map(s => {
-        const g = (window.__gxGames||[]).find(x => x.slug === s.gameSlug);
-        const name = g ? g.name : s.gameSlug;
+        const g = gEntries.find(x => x.id === s.gameSlug);
+        const name = g ? entryDisplayName(g, gEntries) : s.gameSlug;
         const icon = g ? stripIcon(g.icon) : '';
         return '<div class="tl-item"><div class="tl-time">' + s.time + '</div><div class="tl-name"><span class="tl-icon">' + icon + '</span><span>' + name + '</span></div></div>';
       }).join('');
@@ -2344,11 +2439,11 @@ function refreshResultsSelectOptions(){
 
 function buildResultsForm(){
   if(!adminResultsGameSelect) return;
-  const slug = adminResultsGameSelect.value;
-  const bareme = arBareme[slug] || [];
+  const id = adminResultsGameSelect.value;
+  const bareme = arBareme[id] || [];
   const approved = getArApproved();
   const positions = Math.max(bareme.length, approved.length);
-  const existing = getArResultsMap()[slug];
+  const existing = getArResultsMap()[id];
   const existingByPos = {};
   if(existing && existing.ranking){
     existing.ranking.forEach(r => { existingByPos[r.position] = r.email; });
@@ -2380,7 +2475,7 @@ async function recomputeAllPoints(){
   const totals = {};
   for(const g of resultGames){
     try{
-      const snap = await getDoc(doc(db, 'results', resultDocId(g.slug)));
+      const snap = await getDoc(doc(db, 'results', resultDocId(g.id)));
       if(snap.exists()){
         const data = snap.data();
         (data.ranking || []).forEach(r => {
@@ -2401,7 +2496,7 @@ async function recomputeArenaPointsGeneric(arenaId, gamesList, approvedList){
   const totals = {};
   for(const g of gamesList){
     try{
-      const snap = await getDoc(doc(db, 'results', arenaId + '_' + g.slug));
+      const snap = await getDoc(doc(db, 'results', arenaId + '_' + g.id));
       if(snap.exists()){
         (snap.data().ranking || []).forEach(r => {
           totals[r.email] = (totals[r.email] || 0) + (r.points || 0);
@@ -2427,12 +2522,12 @@ function populateArenaResultsGameSelect(){
   adminResultsGameSelect.innerHTML = '';
   arGames.forEach(g => {
     const opt = document.createElement('option');
-    opt.value = g.slug;
-    opt.textContent = g.name;
+    opt.value = g.id;
+    opt.textContent = entryDisplayName(g, arGames);
     adminResultsGameSelect.appendChild(opt);
   });
   if(arGames.length){
-    adminResultsGameSelect.value = arGames.some(g => g.slug === prev) ? prev : arGames[0].slug;
+    adminResultsGameSelect.value = arGames.some(g => g.id === prev) ? prev : arGames[0].id;
     buildResultsForm();
   } else if(adminResultsForm){
     adminResultsForm.innerHTML = '<p class="section-desc small">Cette arène n\'a pas encore de barème de points défini pour ses jeux.</p>';
@@ -2442,8 +2537,8 @@ function populateArenaResultsGameSelect(){
 function applyArenaDataForResults(a){
   arArenaData = a;
   arBareme = (a && a.bareme) ? a.bareme : {};
-  const gamesList = (a && Array.isArray(a.games)) ? a.games : [];
-  arGames = gamesList.filter(slug => arBareme[slug]).map(slug => (window.__gxGames || []).find(g => g.slug === slug) || { slug: slug, name: slug, icon: '🎮' });
+  const entries = (a && Array.isArray(a.games)) ? normalizeArenaGames(a.games) : [];
+  arGames = entries.filter(entry => arBareme[entry.id]);
   populateArenaResultsGameSelect();
 }
 
@@ -2452,7 +2547,7 @@ function subscribeResultsArena(arenaId){
   if(arResultsUnsubApproved){ arResultsUnsubApproved(); arResultsUnsubApproved = null; }
   if(arResultsUnsubResults){ arResultsUnsubResults(); arResultsUnsubResults = null; }
   if(arenaId === 'gx-26-2'){
-    applyArenaDataForResults(latestGx262ArenaData || { games: resultGames.map(g => g.slug), bareme: POINTS_BAREME });
+    applyArenaDataForResults(latestGx262ArenaData || { games: resultGames.map(g => g.id), bareme: POINTS_BAREME });
   } else {
     getDoc(doc(db, 'arenas', arenaId)).then(snap => applyArenaDataForResults(snap.exists() ? snap.data() : null));
     arResultsUnsubApproved = onSnapshot(query(collection(db, 'registrations'), where('kermesseId', '==', arenaId), where('approved', '==', true)), (snap) => {
@@ -2491,10 +2586,10 @@ if(adminResultsGameSelect){
     if(e.target && e.target.tagName === 'SELECT') refreshResultsSelectOptions();
   });
   adminResultsSubmitBtn.addEventListener('click', async () => {
-    const slug = adminResultsGameSelect.value;
-    if(!slug) return;
-    const game = arGames.find(g => g.slug === slug);
-    const bareme = arBareme[slug] || [];
+    const id = adminResultsGameSelect.value;
+    if(!id) return;
+    const game = arGames.find(g => g.id === id);
+    const bareme = arBareme[id] || [];
     const approved = getArApproved();
     const selects = Array.from(adminResultsForm.querySelectorAll('select'));
     const ranking = [];
@@ -2514,10 +2609,10 @@ if(adminResultsGameSelect){
     adminResultsMsg.className = 'account-msg';
     adminResultsMsg.textContent = 'Enregistrement…';
     try{
-      await setDoc(doc(db, 'results', arSelectedArenaId + '_' + slug), {
+      await setDoc(doc(db, 'results', arSelectedArenaId + '_' + id), {
         kermesseId: arSelectedArenaId,
-        gameSlug: slug,
-        gameName: game ? game.name : slug,
+        gameSlug: id,
+        gameName: game ? entryDisplayName(game, arGames) : id,
         ranking,
         updatedAt: serverTimestamp(),
         updatedBy: ADMIN_EMAIL
@@ -2565,9 +2660,9 @@ onSnapshot(qResults, (snap) => {
     currentResultsBySlug[data.gameSlug] = data;
   });
   staticArenaGamesList.forEach(g => {
-    const body = document.getElementById('rank-body-' + g.slug);
+    const body = document.getElementById('rank-body-' + g.id);
     if(!body) return;
-    const res = currentResultsBySlug[g.slug];
+    const res = currentResultsBySlug[g.id];
     if(!res || !res.ranking || res.ranking.length === 0){
       body.innerHTML = 'Bientôt disponible';
       return;
@@ -2822,62 +2917,157 @@ if(archiveAddBtn){
   });
 }
 
-/* ---------- Création d'arène par l'admin (Round 15) ---------- */
+/* ---------- Création d'arène par l'admin (Round 15, refonte jeux/format Round 27) ---------- */
 function stripIcon(icon){ return (icon || '').replace(/<[^>]*>/g, ''); }
 
+const arenaGameAddSelect = document.getElementById('arena-game-add-select');
+const arenaGameAddBtn = document.getElementById('arena-game-add-btn');
 const arenaGamesPickerEl = document.getElementById('arena-games-picker');
 const arenaBaremeBuilderEl = document.getElementById('arena-bareme-builder');
+let arenaGamesDraft = [];
 let arenaBaremeDraft = {};
-function renderArenaGamesPicker(checkedSlugs){
-  if(!arenaGamesPickerEl) return;
-  const checked = checkedSlugs || Array.from(document.querySelectorAll('.arena-game-cb:checked')).map(cb => cb.value);
-  arenaGamesPickerEl.innerHTML = '';
+
+function refreshArenaGameAddOptions(){
+  if(!arenaGameAddSelect) return;
+  const prev = arenaGameAddSelect.value;
+  arenaGameAddSelect.innerHTML = '';
   (window.__gxGames || []).forEach(g => {
-    const label = document.createElement('label');
-    label.className = 'arena-game-check';
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.value = g.slug;
-    cb.className = 'arena-game-cb';
-    if(checked.indexOf(g.slug) !== -1) cb.checked = true;
-    cb.addEventListener('change', renderArenaBaremeBuilder);
-    label.appendChild(cb);
-    label.appendChild(document.createTextNode(' ' + stripIcon(g.icon) + ' ' + g.name));
-    arenaGamesPickerEl.appendChild(label);
+    const opt = document.createElement('option');
+    opt.value = g.slug;
+    opt.textContent = g.name;
+    arenaGameAddSelect.appendChild(opt);
+  });
+  if(Array.from(arenaGameAddSelect.options).some(o => o.value === prev)) arenaGameAddSelect.value = prev;
+}
+refreshArenaGameAddOptions();
+
+function refreshArenaSlotGameOptions(){
+  document.querySelectorAll('.arena-slot-game').forEach(sel => {
+    const prev = sel.value;
+    sel.innerHTML = '';
+    arenaGamesDraft.forEach(entry => {
+      const opt = document.createElement('option');
+      opt.value = entry.id;
+      opt.textContent = entryDisplayName(entry, arenaGamesDraft);
+      sel.appendChild(opt);
+    });
+    if(arenaGamesDraft.some(e => e.id === prev)) sel.value = prev;
   });
 }
-function renderArenaBaremeBuilder(){
-  if(!arenaBaremeBuilderEl) return;
-  const checked = Array.from(document.querySelectorAll('.arena-game-cb:checked')).map(cb => cb.value);
-  arenaBaremeBuilderEl.innerHTML = '';
-  if(checked.length === 0){
-    arenaBaremeBuilderEl.innerHTML = '<p class="section-desc small">Choisis des jeux ci-dessus pour définir leur barème de points.</p>';
+
+function renderArenaGamesPicker(){
+  if(!arenaGamesPickerEl) return;
+  if(arenaGamesDraft.length === 0){
+    arenaGamesPickerEl.innerHTML = '<p class="section-desc small">Aucun jeu ajouté pour l\'instant.</p>';
     return;
   }
-  checked.forEach(slug => {
-    const g = (window.__gxGames || []).find(x => x.slug === slug) || { name: slug, icon: '🎮' };
-    if(!arenaBaremeDraft[slug]) arenaBaremeDraft[slug] = [10,5,3];
+  arenaGamesPickerEl.innerHTML = '';
+  arenaGamesDraft.forEach(entry => {
     const row = document.createElement('div');
-    row.className = 'arena-slot-row';
+    row.className = 'arena-game-entry-row';
+    const label = document.createElement('span');
+    label.className = 'arena-game-entry-name';
+    label.textContent = stripIcon(entry.icon) + ' ' + entry.name;
+    const fmtSel = document.createElement('select');
+    fmtSel.className = 'admin-results-select arena-game-entry-format';
+    [['individuel','Individuel'], ['equipes','Équipes']].forEach(pair => {
+      const opt = document.createElement('option');
+      opt.value = pair[0];
+      opt.textContent = pair[1];
+      fmtSel.appendChild(opt);
+    });
+    fmtSel.value = entry.format;
+    fmtSel.addEventListener('change', () => {
+      entry.format = fmtSel.value;
+      renderArenaGamesPicker();
+      renderArenaBaremeBuilder();
+      refreshArenaSlotGameOptions();
+    });
+    const rm = document.createElement('button');
+    rm.type = 'button';
+    rm.className = 'admin-btn admin-refuse';
+    rm.textContent = '×';
+    rm.addEventListener('click', () => {
+      arenaGamesDraft = arenaGamesDraft.filter(e => e.id !== entry.id);
+      delete arenaBaremeDraft[entry.id];
+      renderArenaGamesPicker();
+      renderArenaBaremeBuilder();
+      refreshArenaSlotGameOptions();
+    });
+    row.appendChild(label);
+    row.appendChild(fmtSel);
+    row.appendChild(rm);
+    arenaGamesPickerEl.appendChild(row);
+  });
+}
+
+if(arenaGameAddBtn){
+  arenaGameAddBtn.addEventListener('click', () => {
+    if(!arenaGameAddSelect || !arenaGameAddSelect.value) return;
+    const slug = arenaGameAddSelect.value;
+    const g = (window.__gxGames || []).find(x => x.slug === slug) || { slug: slug, name: slug, icon: '🎮' };
+    const id = nextEntryId(slug, arenaGamesDraft);
+    arenaGamesDraft.push({ id: id, slug: slug, format: 'individuel', name: g.name, icon: g.icon });
+    if(!arenaBaremeDraft[id]) arenaBaremeDraft[id] = [10,5,3];
+    renderArenaGamesPicker();
+    renderArenaBaremeBuilder();
+    refreshArenaSlotGameOptions();
+  });
+}
+
+function renderArenaBaremeBuilder(){
+  if(!arenaBaremeBuilderEl) return;
+  if(arenaGamesDraft.length === 0){
+    arenaBaremeBuilderEl.innerHTML = '<p class="section-desc small">Ajoute des jeux ci-dessus pour définir leur barème de points.</p>';
+    return;
+  }
+  arenaBaremeBuilderEl.innerHTML = '';
+  const posLabels = ['1er','2e','3e','4e','5e','6e','7e','8e','9e','10e'];
+  arenaGamesDraft.forEach(entry => {
+    if(!arenaBaremeDraft[entry.id]) arenaBaremeDraft[entry.id] = [10,5,3];
+    const wrap = document.createElement('div');
+    wrap.className = 'arena-bareme-entry';
     const label = document.createElement('span');
     label.className = 'admin-results-pos';
-    label.textContent = stripIcon(g.icon) + ' ' + g.name + ' :';
-    row.appendChild(label);
-    ['1er','2e','3e'].forEach((posLabel, idx) => {
+    label.textContent = entryDisplayName(entry, arenaGamesDraft) + ' :';
+    wrap.appendChild(label);
+    const positionsEl = document.createElement('div');
+    positionsEl.className = 'arena-bareme-positions';
+    arenaBaremeDraft[entry.id].forEach((val, idx) => {
+      const pos = document.createElement('span');
+      pos.className = 'arena-bareme-pos';
       const inp = document.createElement('input');
       inp.type = 'number';
       inp.min = '0';
-      inp.style.width = '70px';
-      inp.style.marginLeft = '8px';
-      inp.placeholder = posLabel;
-      inp.value = (arenaBaremeDraft[slug][idx] != null) ? arenaBaremeDraft[slug][idx] : '';
+      inp.placeholder = posLabels[idx] || ((idx+1) + 'e');
+      inp.value = (val != null) ? val : '';
       inp.addEventListener('input', () => {
         const v = inp.value === '' ? null : Number(inp.value);
-        arenaBaremeDraft[slug][idx] = (v == null || isNaN(v)) ? null : v;
+        arenaBaremeDraft[entry.id][idx] = (v == null || isNaN(v)) ? null : v;
       });
-      row.appendChild(inp);
+      const rmPos = document.createElement('button');
+      rmPos.type = 'button';
+      rmPos.className = 'admin-btn admin-refuse';
+      rmPos.textContent = '×';
+      rmPos.addEventListener('click', () => {
+        arenaBaremeDraft[entry.id].splice(idx, 1);
+        renderArenaBaremeBuilder();
+      });
+      pos.appendChild(inp);
+      pos.appendChild(rmPos);
+      positionsEl.appendChild(pos);
     });
-    arenaBaremeBuilderEl.appendChild(row);
+    wrap.appendChild(positionsEl);
+    const addPosBtn = document.createElement('button');
+    addPosBtn.type = 'button';
+    addPosBtn.className = 'btn btn-ghost';
+    addPosBtn.textContent = '+ Ajouter une position';
+    addPosBtn.addEventListener('click', () => {
+      arenaBaremeDraft[entry.id].push(null);
+      renderArenaBaremeBuilder();
+    });
+    wrap.appendChild(addPosBtn);
+    arenaBaremeBuilderEl.appendChild(wrap);
   });
 }
 renderArenaGamesPicker();
@@ -2892,10 +3082,10 @@ function addArenaSlotRow(slotsContainer){
   timeInput.placeholder = 'Horaire (ex. 20h30 – 21h00)';
   const sel = document.createElement('select');
   sel.className = 'arena-slot-game';
-  (window.__gxGames || []).forEach(g => {
+  arenaGamesDraft.forEach(entry => {
     const opt = document.createElement('option');
-    opt.value = g.slug;
-    opt.textContent = g.name;
+    opt.value = entry.id;
+    opt.textContent = entryDisplayName(entry, arenaGamesDraft);
     sel.appendChild(opt);
   });
   const rm = document.createElement('button');
@@ -2971,10 +3161,12 @@ function resetArenaForm(){
   arenaSlugInput.value = '';
   arenaSlugInput.disabled = false;
   arenaSlugInput.dataset.touched = '';
+  arenaGamesDraft = [];
   arenaBaremeDraft = {};
   document.getElementById('arena-days-builder').innerHTML = '';
-  renderArenaGamesPicker([]);
+  renderArenaGamesPicker();
   renderArenaBaremeBuilder();
+  refreshArenaSlotGameOptions();
   if(arenaCreateBtn) arenaCreateBtn.textContent = "Créer l'arène";
   if(arenaCancelEditBtn) arenaCancelEditBtn.classList.add('hidden');
 }
@@ -2985,9 +3177,14 @@ function loadArenaIntoForm(a){
   document.getElementById('arena-short-name').value = a.shortName || '';
   arenaSlugInput.value = a.kermesseId;
   arenaSlugInput.disabled = true;
-  arenaBaremeDraft = JSON.parse(JSON.stringify(a.bareme || {}));
-  renderArenaGamesPicker(a.games || []);
+  arenaGamesDraft = normalizeArenaGames(a.games);
+  arenaBaremeDraft = {};
+  arenaGamesDraft.forEach(entry => {
+    arenaBaremeDraft[entry.id] = (a.bareme && a.bareme[entry.id]) ? JSON.parse(JSON.stringify(a.bareme[entry.id])) : [10,5,3];
+  });
+  renderArenaGamesPicker();
   renderArenaBaremeBuilder();
+  refreshArenaSlotGameOptions();
   const builder = document.getElementById('arena-days-builder');
   builder.innerHTML = '';
   (a.days || []).forEach(d => {
@@ -3020,14 +3217,13 @@ if(arenaCreateBtn){
     const shortNameInput = document.getElementById('arena-short-name');
     const shortName = shortNameInput.value.trim();
     const slug = arenaSlugInput.value.trim();
-    const gamesChecked = Array.from(document.querySelectorAll('.arena-game-cb:checked')).map(cb => cb.value);
     const dayBlocks = Array.from(document.querySelectorAll('.arena-day-block'));
     if(!name || !slug){
       msg.className = 'account-msg err';
       msg.textContent = 'Le nom et l\'identifiant sont obligatoires.';
       return;
     }
-    if(gamesChecked.length === 0){
+    if(arenaGamesDraft.length === 0){
       msg.className = 'account-msg err';
       msg.textContent = 'Choisis au moins un jeu.';
       return;
@@ -3046,10 +3242,11 @@ if(arenaCreateBtn){
       })).filter(s => s.time);
       return { date: date || null, label: label || date || 'Jour', slots: slots };
     });
+    const gamesOut = arenaGamesDraft.map(e => ({ id: e.id, slug: e.slug, format: e.format }));
     const baremeOut = {};
-    gamesChecked.forEach(gslug => {
-      const arr = (arenaBaremeDraft[gslug] || []).filter(v => v != null && v > 0);
-      if(arr.length) baremeOut[gslug] = arr;
+    arenaGamesDraft.forEach(e => {
+      const arr = (arenaBaremeDraft[e.id] || []).filter(v => v != null && v > 0);
+      if(arr.length) baremeOut[e.id] = arr;
     });
     const targetSlug = editingArenaSlug || slug;
     try{
@@ -3057,7 +3254,7 @@ if(arenaCreateBtn){
         await updateDoc(doc(db, 'arenas', targetSlug), {
           name: name,
           shortName: shortName || name,
-          games: gamesChecked,
+          games: gamesOut,
           days: days,
           bareme: baremeOut
         });
@@ -3069,7 +3266,7 @@ if(arenaCreateBtn){
           name: name,
           shortName: shortName || name,
           status: 'upcoming',
-          games: gamesChecked,
+          games: gamesOut,
           days: days,
           bareme: baremeOut,
           createdAt: serverTimestamp(),
@@ -3154,10 +3351,8 @@ if(adminArenasListEl){
 let arenasCache = {};
 
 function renderArenaCard(a){
-  const gamesChips = (a.games || []).map(slug => {
-    const g = (window.__gxGames || []).find(x => x.slug === slug);
-    return g ? ('<span>' + stripIcon(g.icon) + ' ' + g.name + '</span>') : '';
-  }).join('');
+  const cardEntries = normalizeArenaGames(a.games);
+  const gamesChips = cardEntries.map(g => '<span>' + stripIcon(g.icon) + ' ' + entryDisplayName(g, cardEntries) + '</span>').join('');
   const daysLabel = (a.days || []).map(d => d.label).join(' + ');
   const firstDay = (a.days && a.days[0]) || {};
   let dayNum = '–', monthLabel = '';
@@ -3246,8 +3441,8 @@ async function renderDynamicArenaPage(kermesseId){
     const arena = snap.data();
     const isArchived = arena.status === 'archived';
     const isLive = arena.status === 'live';
-    const gamesList = (arena.games || []).map(slug => (window.__gxGames || []).find(g => g.slug === slug)).filter(Boolean);
-    const gamesChipsHtml = gamesList.map(g => '<span>' + stripIcon(g.icon) + ' ' + g.name + '</span>').join('');
+    const gamesList = normalizeArenaGames(arena.games);
+    const gamesChipsHtml = gamesList.map(g => '<span>' + stripIcon(g.icon) + ' ' + entryDisplayName(g, gamesList) + '</span>').join('');
 
     const ctaHtml = isArchived
       ? '<div class="participate-state approved">🏁 Cette arène est terminée. Retrouve le classement final ci-dessous.</div>'
@@ -3255,19 +3450,20 @@ async function renderDynamicArenaPage(kermesseId){
 
     const programmeHtml = (arena.days || []).map(d => {
       const slotsHtml = (d.slots || []).map(s => {
-        const g = (window.__gxGames || []).find(x => x.slug === s.gameSlug);
+        const g = gamesList.find(x => x.id === s.gameSlug);
         const icon = g ? stripIcon(g.icon) : '';
-        const name = g ? g.name : s.gameSlug;
+        const name = g ? entryDisplayName(g, gamesList) : s.gameSlug;
         return '<div class="tl-item"><div class="tl-time">' + s.time + '</div><div class="tl-name"><span class="tl-icon">' + icon + '</span><span>' + name + '</span></div></div>';
       }).join('');
       return '<div class="arenas-subsection"><h3 class="arenas-subtitle">' + d.label + '</h3><div class="timeline active">' + (slotsHtml || '<p class="section-desc small">Planning à venir.</p>') + '</div></div>';
     }).join('');
 
-    const baremeRows = gamesList.filter(g => POINTS_BAREME[g.slug]).map(g => {
-      const pts = POINTS_BAREME[g.slug];
+    const arenaBareme = arena.bareme || {};
+    const baremeRows = gamesList.filter(g => arenaBareme[g.id]).map(g => {
+      const pts = arenaBareme[g.id];
       const posLabels = ['1er','2e','3e','4e','5e'];
       const line = pts.map((p,i) => (posLabels[i] || ((i+1) + 'e')) + ': ' + p).join(' · ');
-      return '<li><strong>' + g.name + '</strong> — ' + line + '</li>';
+      return '<li><strong>' + entryDisplayName(g, gamesList) + '</strong> — ' + line + '</li>';
     }).join('');
 
     container.innerHTML =
@@ -3296,7 +3492,7 @@ async function renderDynamicArenaPage(kermesseId){
     const participantsListEl2 = document.getElementById('dynamic-participants-list');
     if(rankGridEl){
       rankGridEl.innerHTML = '<div class="rank-card general"><span class="lock">🏆</span><h3>Classement général</h3><div class="rank-status" id="dynamic-rank-general-body">Chargement…</div></div>' +
-        gamesList.map(g => '<div class="rank-card"><span class="lock">🔒</span><h3>' + g.name + '</h3><div class="rank-status" id="dynamic-rank-body-' + g.slug + '">Bientôt disponible</div></div>').join('');
+        gamesList.map(g => '<div class="rank-card"><span class="lock">🔒</span><h3>' + entryDisplayName(g, gamesList) + '</h3><div class="rank-status" id="dynamic-rank-body-' + g.id + '">Bientôt disponible</div></div>').join('');
     }
 
     const uReg = onSnapshot(query(collection(db, 'registrations'), where('kermesseId', '==', kermesseId), where('approved', '==', true)), (rsnap) => {
@@ -3316,8 +3512,8 @@ async function renderDynamicArenaPage(kermesseId){
     dynamicArenaChildUnsubs.push(uReg);
 
     gamesList.forEach(g => {
-      const uRes = onSnapshot(doc(db, 'results', kermesseId + '_' + g.slug), (rsnap) => {
-        const body = document.getElementById('dynamic-rank-body-' + g.slug);
+      const uRes = onSnapshot(doc(db, 'results', kermesseId + '_' + g.id), (rsnap) => {
+        const body = document.getElementById('dynamic-rank-body-' + g.id);
         if(!body) return;
         if(!rsnap.exists() || !rsnap.data().ranking || rsnap.data().ranking.length === 0){
           body.innerHTML = 'Bientôt disponible';
@@ -3455,10 +3651,8 @@ onSnapshot(collection(db, 'games'), (snap) => {
       });
     }
   }
-  if(typeof renderArenaGamesPicker === 'function'){
-    const checked = Array.from(document.querySelectorAll('.arena-game-cb:checked')).map(cb => cb.value);
-    renderArenaGamesPicker(checked);
-  }
+  if(typeof refreshArenaGameAddOptions === 'function') refreshArenaGameAddOptions();
+  if(typeof renderArenaGamesPicker === 'function') renderArenaGamesPicker();
   if(typeof renderStandFavoriOptions === 'function') renderStandFavoriOptions();
 });
 
